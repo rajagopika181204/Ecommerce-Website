@@ -14,6 +14,8 @@ import BillingPage from "./pages/BillingPage";
 import AboutPage from "./pages/About";
 import TrackingPage from"./pages/TrackingPage";
 import Wishlist from "./pages/Wishlist";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
+
 
 function AppWrapper() {
   return (
@@ -33,6 +35,7 @@ function AppWrapper() {
         <Route path="/tracking" element={<TrackingPage/>} />
         <Route path="/About" element={<AboutPage/>} />
         <Route path="/Wishlist" element={<Wishlist/>} />
+        <Route path="/order-history" element={<OrderHistoryPage />} />
       </Routes>
     </>
   );

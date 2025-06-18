@@ -157,6 +157,7 @@ function BuyNowPage() {
       // UPI payment flow assumed handled separately
       return;
     }
+
   };
 
   return (

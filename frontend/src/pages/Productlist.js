@@ -56,6 +56,7 @@ function ProductList() {
           <Link to="/cart">Cart 🛒</Link>
           <Link to="/contact">Contact</Link>
           <Link to="/login">Login</Link>
+          <Link to="/order-history">My Orders</Link>
         </nav>
       </header>
 

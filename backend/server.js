@@ -225,73 +225,74 @@ app.post('/api/cart', async (req, res) => {
   }
 });
 
-app.post('/api/orders', async (req, res) => {
-  const { customerName, customerEmail, items, totalAmount } = req.body;
+app.post("/api/orders", async (req, res) => {
+    const { userId, totalAmount, paymentMethod, items } = req.body;
 
-  if (!customerName || !customerEmail || !items || !totalAmount) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  const connection = await connectDB();
-  try {
-    await connection.beginTransaction();
-
-    // Insert into orders table
-    const [orderResult] = await connection.execute(
-      'INSERT INTO orders (customer_name, customer_email, total_amount) VALUES (?, ?, ?)',
-      [customerName, customerEmail, totalAmount]
-    );
-    const orderId = orderResult.insertId;
-
-    // Insert into order_items table
-    for (const item of items) {
-      await connection.execute(
-        'INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)',
-        [orderId, item.productId, item.quantity]
-      );
+    if (!userId || !totalAmount || !paymentMethod || !items) {
+        return res.status(400).json({ error: "Missing required fields" });
     }
 
-    await connection.commit();
-    res.json({ message: 'Order placed successfully', orderId });
-  } catch (err) {
-    await connection.rollback();
-    res.status(500).json({ error: 'Failed to place order', details: err.message });
-  } finally {
-    connection.end();
-  }
-});
+    const connection = await connectDB();
+    try {
+        await connection.beginTransaction();
 
-app.get('/api/orders/:orderId', async (req, res) => {
-  const { orderId } = req.params;
+        // Insert into orders table
+        const [orderResult] = await connection.execute(
+            "INSERT INTO orders (user_id, total_amount, payment_method, status) VALUES (?, ?, ?, ?)",
+            [userId, totalAmount, paymentMethod, "pending"]
+        );
 
-  const connection = await connectDB();
-  try {
-    // Fetch order details
-    const [orderDetails] = await connection.execute(
-      'SELECT * FROM orders WHERE id = ?',
-      [orderId]
-    );
+        const orderId = orderResult.insertId;
 
-    if (orderDetails.length === 0) {
-      return res.status(404).json({ error: 'Order not found' });
+        // Insert into order_items table
+        for (const item of items) {
+            await connection.execute(
+                "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
+                [orderId, item.productId, item.quantity, item.price]
+            );
+        }
+
+        await connection.commit();
+        res.status(201).json({ message: "Order saved successfully", orderId });
+    } catch (err) {
+        await connection.rollback();
+        console.error("Error saving order:", err);
+        res.status(500).json({ error: "Failed to save order" });
+    } finally {
+        connection.end();
     }
-
-    // Fetch items in the order
-    const [orderItems] = await connection.execute(
-      `SELECT oi.product_id, p.name, p.price, oi.quantity 
-       FROM order_items oi 
-       JOIN products p ON oi.product_id = p.id 
-       WHERE oi.order_id = ?`,
-      [orderId]
-    );
-
-    res.json({ order: orderDetails[0], items: orderItems });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch order details', details: err.message });
-  } finally {
-    connection.end();
-  }
 });
+
+app.get("/api/orders/:userId", async (req, res) => {
+    const { userId } = req.params;
+
+    const connection = await connectDB();
+    try {
+        // Fetch orders for the specific user
+        const [orders] = await connection.execute(
+            "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
+            [userId]
+        );
+
+        // Fetch items for each order
+        for (const order of orders) {
+            const [items] = await connection.execute(
+                "SELECT * FROM order_items WHERE order_id = ?",
+                [order.id]
+            );
+            order.items = items; // Attach items to each order
+        }
+
+        res.json(orders);
+    } catch (err) {
+        console.error("Error fetching orders:", err);
+        res.status(500).json({ error: "Failed to fetch orders" });
+    } finally {
+        connection.end();
+    }
+});
+
+
 // Mock tracking data
 const trackingData = {
   TRK123ABC: { status: "Shipped", expectedDelivery: "2025-06-15" },
