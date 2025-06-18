@@ -114,34 +114,39 @@ function BuyNowPage() {
 
   const handlePlaceOrder = async () => {
     if (!userDetails.name || !userDetails.address || !userDetails.phone) {
-      alert("Please fill out all required fields.");
-      return;
+        alert("Please fill out all required fields.");
+        return;
     }
 
     try {
-      for (const item of items) {
-        const res = await fetch("http://localhost:5000/api/update-stock", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            productId: item.product.id,
-            quantityPurchased: item.quantity,
-          }),
-        });
+        for (const item of items) {
+            const res = await fetch("http://localhost:5000/api/update-stock", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    productId: item.product.id,
+                    quantityPurchased: item.quantity,
+                }),
+            });
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Stock update failed");
-      }
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Stock update failed");
+        }
 
-      alert("Order placed successfully!");
-      navigate("/payment-success", {
-        state: { orderDetails: { items, userDetails, total: calculatedTotal } },
-      });
+        const orderDetails = {
+            items,
+            userDetails,
+            total: calculatedTotal,
+            paymentMethod: userDetails.paymentMethod, // Include payment method
+        };
+
+        alert("Order placed successfully!");
+        navigate("/payment-success", { state: { orderDetails } }); // Navigate to Payment Success
     } catch (err) {
-      alert("Error placing order: " + err.message);
-      console.error(err);
+        alert("Error placing order: " + err.message);
+        console.error(err);
     }
 
     if (userDetails.paymentMethod === "upi") {

@@ -46,7 +46,7 @@ function BillingPage() {
     );
   }
 
-  const { items, userDetails, total } = orderDetails;
+  const { items, userDetails, total,paymentMethod } = orderDetails;
 
   const orderDate = new Date();
   const deliveryDate = new Date(orderDate);
@@ -71,13 +71,15 @@ function BillingPage() {
   doc.setFontSize(12);
   doc.text(`Order ID: ${orderId}`, 15, 50);
   doc.text(`Tracking ID: ${trackingID}`, 15, 57);
-  doc.text(`Transaction ID: ${transactionID}`, 15, 64);
+ if (paymentMethod === "upi") {
+      doc.text(`Transaction ID: ${transactionID}`, 15, 64); // Show only for UPI
+    }
   doc.text(`Order Date: ${orderDate.toLocaleDateString()}`, 15, 71);
   doc.text(`Delivery Date: ${deliveryDate.toLocaleDateString()}`, 15, 78);
   doc.text(`Customer: ${userDetails.name}`, 15, 85);
   doc.text(`Address: ${userDetails.address}`, 15, 92);
   doc.text(`Phone: ${userDetails.phone}`, 15, 99);
-
+  doc.text(`Payment Method: ${paymentMethod}`, 15, 106); // Add Payment Method
   // Product Table
   autoTable(doc, {
     startY: 110,
@@ -191,8 +193,13 @@ function BillingPage() {
           <p>
             <FaTruck /> <strong>Tracking ID:</strong> {trackingID}
           </p>
+           {paymentMethod === "upi" && (
           <p>
             <FaCreditCard /> <strong>Transaction ID:</strong> {transactionID}
+          </p>
+          )}
+          <p>
+            <FaCreditCard /> <strong>Payment Method:</strong> {paymentMethod}
           </p>
           <p>
             <FaCalendarAlt /> <strong>Order Date:</strong>{" "}
