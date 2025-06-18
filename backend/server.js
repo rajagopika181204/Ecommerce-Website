@@ -147,6 +147,35 @@ app.post('/api/update-stock', async (req, res) => {
     connection.end();
   }
 });
+const Razorpay = require("razorpay");
+
+// Initialize Razorpay instance
+const razorpay = new Razorpay({
+  key_id: "rzp_test_EH1UEwLILEPXCj", // Replace with your Razorpay Key ID
+  key_secret: "ppM7JhyVpBtycmMcFGxYdacw", // Replace with your Razorpay Key Secret
+});
+
+// Razorpay Order API
+app.post("/create-order", async (req, res) => {
+  const { amount, currency } = req.body;
+
+  if (!amount || !currency) {
+    return res.status(400).json({ error: "Amount and currency are required" });
+  }
+
+  try {
+    const order = await razorpay.orders.create({
+      amount: amount * 100, // Razorpay works in smallest currency unit (e.g., paise for INR)
+      currency: currency,
+      receipt: `order_rcptid_${Date.now()}`,
+    });
+
+    res.json(order); // Send order details to frontend
+  } catch (error) {
+    console.error("Error creating Razorpay order:", error);
+    res.status(500).json({ error: "Failed to create Razorpay order" });
+  }
+});
 
 // Generate UPI Link Route
 app.post('/api/generate-upi-link', (req, res) => {

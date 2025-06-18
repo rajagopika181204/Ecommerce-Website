@@ -86,7 +86,7 @@ function BuyNowPage() {
     const { name, value } = e.target;
     setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
-
+  
   const handleUpiPayment = async () => {
     try {
       const response = await axios.post(
