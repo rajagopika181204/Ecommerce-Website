@@ -1,138 +1,124 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FaCheckCircle, FaArrowRight } from "react-icons/fa";
 
-function PaymentSuccessPage() {
-  const navigate = useNavigate();
+const PaymentSuccessPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Retrieve order details from location.state or fallback to null
-  const orderDetails = location.state?.orderDetails || null;
+  const { orderId, trackingId, transactionId } = location.state || {};
 
-  const handleContinueShopping = () => {
-    navigate("/"); // Redirect to home/shop page
-  };
-
-  const handleViewBilling = () => {
-    navigate("/billing", { state: { orderDetails } }); // Pass details to billing page
-  };
+  if (!orderId || !trackingId || !transactionId) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontFamily: "Arial, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "20px",
+            borderRadius: "10px",
+            boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+            textAlign: "center",
+          }}
+        >
+          <h1 style={{ color: "#ff4d4f", fontSize: "24px" }}>Error</h1>
+          <p>Payment details are missing. Please try again!</p>
+          <button
+            style={{
+              padding: "10px 20px",
+              fontSize: "16px",
+              color: "#fff",
+              backgroundColor: "#4CAF50",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              marginTop: "10px",
+            }}
+            onClick={() => navigate("/")}
+          >
+            Go Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        backgroundColor: "#f8f9fa",
-        fontFamily: "'Roboto', sans-serif",
-        color: "#333",
         padding: "20px",
+        fontFamily: "Arial, sans-serif",
+        maxWidth: "600px",
+        margin: "50px auto",
+        textAlign: "center",
+        backgroundColor: "#fff",
+        borderRadius: "15px",
+        boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+        animation: "fadeIn 0.5s ease-in-out",
       }}
     >
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: "12px",
-          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-          maxWidth: "500px",
-          textAlign: "center",
-          padding: "30px 20px",
-          margin: "20px",
-        }}
-      >
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/190/190411.png"
-          alt="Success"
-          style={{ width: "100px", margin: "20px auto" }}
-        />
-        <h1 style={{ color: "#28a745", fontSize: "24px", marginBottom: "10px" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <FaCheckCircle size={70} color="#4CAF50" />
+        <h1 style={{ color: "#4CAF50", fontSize: "28px", marginTop: "15px" }}>
           Payment Successful!
         </h1>
-        <p style={{ fontSize: "16px", color: "#666", marginBottom: "20px" }}>
-          Thank you for your purchase! Your order has been successfully placed.
+        <p style={{ color: "#555", fontSize: "16px" }}>
+          Thank you for your purchase. Your order is being processed.
         </p>
-
-        <div
-          style={{
-            backgroundColor: "#f8f9fa",
-            padding: "15px",
-            borderRadius: "8px",
-            marginBottom: "20px",
-            fontSize: "14px",
-            color: "#555",
-            textAlign: "left",
-          }}
-        >
-          <h4 style={{ marginBottom: "10px", fontSize: "16px", color: "#333" }}>
-            Order Summary
-          </h4>
-          {orderDetails?.items?.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "8px",
-              }}
-            >
-              <span>{item.product.name} x {item.quantity}</span>
-              <span>₹{item.product.price * item.quantity}</span>
-            </div>
-          ))}
-          <hr style={{ border: "0.5px solid #ddd", margin: "10px 0" }} />
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontWeight: "bold",
-            }}
-          >
-            <span>Total</span>
-            <span>₹{orderDetails?.total || 0}</span>
-          </div>
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-around" }}>
-          <button
-            onClick={handleContinueShopping}
-            style={{
-              backgroundColor: "#007bff",
-              color: "#fff",
-              padding: "10px 20px",
-              borderRadius: "6px",
-              fontSize: "16px",
-              border: "none",
-              cursor: "pointer",
-              transition: "background-color 0.3s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#0056b3")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#007bff")}
-          >
-            Continue Shopping
-          </button>
-
-          <button
-            onClick={handleViewBilling}
-            style={{
-              backgroundColor: "#28a745",
-              color: "#fff",
-              padding: "10px 20px",
-              borderRadius: "6px",
-              fontSize: "16px",
-              border: "none",
-              cursor: "pointer",
-              transition: "background-color 0.3s",
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#1e7e34")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#28a745")}
-          >
-            View Billing
-          </button>
-        </div>
       </div>
+
+      <div
+        style={{
+          backgroundColor: "#f9f9f9",
+          padding: "15px",
+          borderRadius: "10px",
+          boxShadow: "0px 2px 6px rgba(0,0,0,0.05)",
+          marginBottom: "20px",
+          textAlign: "left",
+        }}
+      >
+        <h2 style={{ fontSize: "20px", marginBottom: "10px", color: "#333" }}>
+          Order Details
+        </h2>
+        <p style={{ fontSize: "16px", margin: "5px 0" }}>
+          <strong>Order ID:</strong> {orderId}
+        </p>
+        <p style={{ fontSize: "16px", margin: "5px 0" }}>
+          <strong>Tracking ID:</strong> {trackingId}
+        </p>
+        <p style={{ fontSize: "16px", margin: "5px 0" }}>
+          <strong>Transaction ID:</strong> {transactionId}
+        </p>
+      </div>
+
+      <button
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "12px 20px",
+          fontSize: "16px",
+          color: "#fff",
+          backgroundColor: "#4CAF50",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          margin: "10px auto 0",
+          transition: "background-color 0.3s ease",
+        }}
+        onClick={() => navigate("/")}
+      >
+        Go to Home <FaArrowRight style={{ marginLeft: "10px" }} />
+      </button>
     </div>
   );
-}
+};
 
 export default PaymentSuccessPage;

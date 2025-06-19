@@ -2,61 +2,69 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { QRCodeSVG } from "qrcode.react";
-import { FaRupeeSign, FaQrcode,FaCreditCard  } from "react-icons/fa";
+import {
+  FaRupeeSign,
+  FaCreditCard,
+  FaQrcode,
+  FaShoppingCart,
+  FaUser,
+  FaMobileAlt,
+  FaMoneyBillWave,
+} from "react-icons/fa";
 
 const Navbar = () => {
-  const navigate = useNavigate();  // <-- FIX: get navigate here
+  const navigate = useNavigate();
 
   return (
     <nav
       style={{
-        width: "100%",
-        height: "60px",
-        padding: "0px 20px",
-        backgroundColor: "#4CAF50",
-        color: "white",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-        position: "sticky",
-        top: "0",
-        zIndex: "1000",
+        backgroundColor: "#0288D1",
+        padding: "10px 20px",
+        color: "#fff",
+        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
       }}
     >
-      <h1 style={{ margin: 0, fontSize: "20px" }}>Your Store</h1>
-      <div>
+      <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>Your Store</h1>
+      <div style={{ display: "flex", gap: "10px" }}>
         <button
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
             backgroundColor: "transparent",
-            color: "white",
+            color: "#fff",
             border: "none",
-            fontSize: "16px",
-            marginRight: "15px",
             cursor: "pointer",
+            fontSize: "16px",
           }}
           onClick={() => navigate("/cart")}
         >
-          Cart
+          <FaShoppingCart /> Cart
         </button>
         <button
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
             backgroundColor: "transparent",
-            color: "white",
+            color: "#fff",
             border: "none",
-            fontSize: "16px",
             cursor: "pointer",
+            fontSize: "16px",
           }}
           onClick={() => alert("Navigate to Profile")}
         >
-          Profile
+          <FaUser /> Profile
         </button>
       </div>
     </nav>
   );
 };
 
-function BuyNowPage() {
+const BuyNowPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { product, quantity, cartDetails, totalPrice } = location.state || {};
@@ -64,6 +72,9 @@ function BuyNowPage() {
   const [userDetails, setUserDetails] = useState({
     name: "",
     address: "",
+    city: "",
+    email: "",
+    pincode: "",
     phone: "",
     paymentMethod: "creditCard",
   });
@@ -71,8 +82,8 @@ function BuyNowPage() {
   const [upiPayment, setUpiPayment] = useState({
     show: false,
     link: "",
-    showQR: false,
     qrData: "",
+    qrVisible: false,
   });
 
   const items = cartDetails || (product ? [{ product, quantity }] : []);
@@ -86,78 +97,65 @@ function BuyNowPage() {
     const { name, value } = e.target;
     setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
-  
-  const handleUpiPayment = async () => {
+
+  const handleGenerateUPI = async () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/generate-upi-link",
-        {
-          amount: calculatedTotal,
-          orderId: `order_${Date.now()}`,
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
+        { amount: calculatedTotal, orderId: `ORDER_${Date.now()}` }
       );
-
       setUpiPayment({
         show: true,
         link: response.data.upiLink,
         qrData: response.data.qrData,
-        showQR: false,
+        qrVisible: false,
       });
     } catch (err) {
-      console.error("UPI Error:", err.response?.data || err.message);
-      alert("Failed to generate UPI link. Check console for details.");
+      console.error("UPI Generation Error:", err);
+      alert("Failed to generate UPI link. Please try again.");
     }
   };
 
   const handlePlaceOrder = async () => {
-    if (!userDetails.name || !userDetails.address || !userDetails.phone) {
-        alert("Please fill out all required fields.");
-        return;
-    }
-
-    try {
-        for (const item of items) {
-            const res = await fetch("http://localhost:5000/api/update-stock", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    productId: item.product.id,
-                    quantityPurchased: item.quantity,
-                }),
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Stock update failed");
-        }
-
-        const orderDetails = {
-            items,
-            userDetails,
-            total: calculatedTotal,
-            paymentMethod: userDetails.paymentMethod, // Include payment method
-        };
-
-        alert("Order placed successfully!");
-        navigate("/payment-success", { state: { orderDetails } }); // Navigate to Payment Success
-    } catch (err) {
-        alert("Error placing order: " + err.message);
-        console.error(err);
-    }
-
-    if (userDetails.paymentMethod === "upi") {
-      if (!upiPayment.show) {
-        alert("Please generate UPI payment link first");
-        return;
-      }
-      // UPI payment flow assumed handled separately
+    if (
+      !userDetails.name ||
+      !userDetails.address ||
+      !userDetails.city ||
+      !userDetails.email ||
+      !userDetails.pincode ||
+      !userDetails.phone
+    ) {
+      alert("Please fill out all required fields.");
       return;
     }
 
+    if (userDetails.paymentMethod === "upi" && !upiPayment.show) {
+      alert("Please generate UPI Payment before placing the order.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/orders", {
+        items,
+        userDetails,
+        total: calculatedTotal,
+        paymentMethod: userDetails.paymentMethod,
+      });
+
+      if (response.data && response.data.orderId) {
+        alert("Order placed successfully!");
+        navigate("/payment-success", {
+          state: {
+            orderId: response.data.orderId,
+            trackingId: response.data.trackingId,
+            transactionId: response.data.transactionId,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("Order Placement Error:", err.response?.data || err.message);
+      alert("Error placing order. Please try again.");
+    }
   };
 
   return (
@@ -166,21 +164,20 @@ function BuyNowPage() {
       <div
         style={{
           padding: "20px",
-          fontFamily: "Arial, sans-serif",
           maxWidth: "800px",
           margin: "0 auto",
+          fontFamily: "'Roboto', sans-serif",
+          color: "#333",
         }}
       >
-        <h1 style={{ textAlign: "center", marginBottom: "20px", color: "white" }}>
-          Checkout
-        </h1>
+        <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Checkout</h1>
 
-        {/* Order Summary */}
         <div
           style={{
             backgroundColor: "#f9f9f9",
-            padding: "15px",
+            padding: "20px",
             borderRadius: "8px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
             marginBottom: "20px",
           }}
         >
@@ -194,144 +191,144 @@ function BuyNowPage() {
           <h3>Total: ₹{calculatedTotal}</h3>
         </div>
 
-        {/* Shipping Form */}
         <div
           style={{
             backgroundColor: "#fff",
-            padding: "15px",
+            padding: "20px",
             borderRadius: "8px",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
+            marginBottom: "20px",
           }}
         >
           <h2>Shipping Details 📦</h2>
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={userDetails.name}
-            onChange={handleInputChange}
-            style={inputStyle}
-            required
-          />
-          <input
-            type="text"
-            name="address"
-            placeholder="Address"
-            value={userDetails.address}
-            onChange={handleInputChange}
-            style={inputStyle}
-            required
-          />
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Phone Number"
-            value={userDetails.phone}
-            onChange={handleInputChange}
-            style={inputStyle}
-            required
-          />
+          {["name", "address", "city", "email", "pincode", "phone"].map(
+            (field) => (
+              <input
+                key={field}
+                type="text"
+                name={field}
+                placeholder={field[0].toUpperCase() + field.slice(1)}
+                value={userDetails[field]}
+                onChange={handleInputChange}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  margin: "10px 0",
+                  borderRadius: "4px",
+                  border: "1px solid #ddd",
+                }}
+              />
+            )
+          )}
+        </div>
 
-          <h2><FaCreditCard />  Payment Method</h2>
+        <div
+          style={{
+            backgroundColor: "#f9f9f9",
+            padding: "20px",
+            borderRadius: "8px",
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
+            marginBottom: "20px",
+          }}
+        >
+          <h2><FaCreditCard/> Payment Method</h2>
           <select
             name="paymentMethod"
             value={userDetails.paymentMethod}
             onChange={handleInputChange}
-            style={inputStyle}
+            style={{
+              width: "100%",
+              padding: "10px",
+              margin: "10px 0",
+              borderRadius: "4px",
+              border: "1px solid #ddd",
+            }}
           >
-            <option value="creditCard">💳 Credit Card</option>
-            <option value="debitCard">💳 Debit Card</option>
-            <option value="cashOnDelivery">💵 Cash on Delivery</option>
-            <option value="upi">📱 UPI (GPay/PhonePe)</option>
+            <option value="creditCard"><FaCreditCard/>Credit Card</option>
+            <option value="upi"><FaMobileAlt/>UPI</option>
+            <option value="cashOnDelivery"><FaMoneyBillWave/>Cash on Delivery</option>
           </select>
-
-          {/* UPI Payment Section */}
-          {userDetails.paymentMethod === "upi" && (
-            <div style={{ marginTop: "15px" }}>
-              <button
-                onClick={handleUpiPayment}
-                style={{
-                  ...buttonStyle,
-                  backgroundColor: "#3366CC",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                }}
-              >
-                <FaRupeeSign /> Generate UPI Payment Link
-              </button>
-
-              {upiPayment.show && (
-                <div style={{ marginTop: "15px" }}>
-                  <button
-                    onClick={() =>
-                      setUpiPayment((p) => ({ ...p, showQR: !p.showQR }))
-                    }
-                    style={{
-                      ...buttonStyle,
-                      backgroundColor: "#6c757d",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <FaQrcode /> <center>{upiPayment.showQR ? "Hide QR" : "Show QR"}</center>
-                  </button>
-
-                  {upiPayment.showQR && (
-                    <div style={{ textAlign: "center", marginTop: "15px" }}>
-                      <QRCodeSVG value={upiPayment.qrData} size={150} level="H" />
-                      <p style={{ marginTop: "5px" }}>Scan to Pay</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
-        {/* Place Order Button */}
+        {userDetails.paymentMethod === "upi" && (
+          <div>
+            <button
+              onClick={handleGenerateUPI}
+              style={{
+                width: "100%",
+                padding: "15px",
+                marginBottom: "10px",
+                color: "#fff",
+                backgroundColor: "#0288D1",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+              }}
+            >
+              <FaRupeeSign/>Generate UPI Payment Link
+            </button>
+            {upiPayment.show && (
+              <div>
+                <a
+                  href={upiPayment.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "block",
+                    textAlign: "center",
+                    color: "#0288D1",
+                    textDecoration: "underline",
+                    margin: "10px 0",
+                  }}
+                >
+                  Click here to Pay
+                </a>
+                <button
+                  onClick={() =>
+                    setUpiPayment((prev) => ({ ...prev, qrVisible: true }))
+                  }
+                  style={{
+                    width: "100%",
+                    padding: "15px",
+                    color: "#fff",
+                    backgroundColor: "#0288D1",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontSize: "16px",
+                  }}
+                >
+                  <FaQrcode/>Show QR Code
+                </button>
+                {upiPayment.qrVisible && (
+                  <div style={{ textAlign: "center", marginTop: "20px" }}>
+                    <QRCodeSVG value={upiPayment.qrData} size={150} />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+       <br/>
         <button
           onClick={handlePlaceOrder}
           style={{
-            ...buttonStyle,
-            marginTop: "20px",
-            backgroundColor:
-              userDetails.paymentMethod === "upi" && !upiPayment.show
-                ? "#ccc"
-                : "#4CAF50",
+            width: "100%",
+            padding: "15px",
+            color: "#fff",
+            backgroundColor: "#4CAF50",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "16px",
           }}
-          disabled={userDetails.paymentMethod === "upi" && !upiPayment.show}
         >
-          {userDetails.paymentMethod === "upi"
-            ? "Complete UPI Payment"
-            : "Place Order"}
+          Place Order
         </button>
       </div>
     </>
   );
-}
-
-// Styles
-const inputStyle = {
-  width: "100%",
-  padding: "10px",
-  margin: "10px 0",
-  borderRadius: "4px",
-  border: "1px solid #ddd",
-  boxSizing: "border-box",
-};
-
-const buttonStyle = {
-  width: "100%",
-  padding: "15px",
-  color: "#fff",
-  border: "none",
-  borderRadius: "8px",
-  fontSize: "16px",
-  cursor: "pointer",
-  transition: "background-color 0.3s",
 };
 
 export default BuyNowPage;

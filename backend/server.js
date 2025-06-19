@@ -11,8 +11,6 @@ const app = express();
 const PORT = 5000;
 const JWT_SECRET = '123!@#';
 
-
-
 // Middleware
 app.use(cors({
   origin: 'http://localhost:3000',
@@ -147,35 +145,101 @@ app.post('/api/update-stock', async (req, res) => {
     connection.end();
   }
 });
-const Razorpay = require("razorpay");
+app.post('/api/orders', async (req, res) => {
+  const { items, userDetails, total, paymentMethod } = req.body;
 
-// Initialize Razorpay instance
-const razorpay = new Razorpay({
-  key_id: "rzp_test_EH1UEwLILEPXCj", // Replace with your Razorpay Key ID
-  key_secret: "ppM7JhyVpBtycmMcFGxYdacw", // Replace with your Razorpay Key Secret
-});
-
-// Razorpay Order API
-app.post("/create-order", async (req, res) => {
-  const { amount, currency } = req.body;
-
-  if (!amount || !currency) {
-    return res.status(400).json({ error: "Amount and currency are required" });
+  // Validate request body
+  if (!items || !userDetails || !total || !paymentMethod) {
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
+
+  const connection = await connectDB();
 
   try {
-    const order = await razorpay.orders.create({
-      amount: amount * 100, // Razorpay works in smallest currency unit (e.g., paise for INR)
-      currency: currency,
-      receipt: `order_rcptid_${Date.now()}`,
-    });
+    // Start transaction
+    await connection.beginTransaction();
 
-    res.json(order); // Send order details to frontend
+    // Generate transaction and tracking IDs
+    const transactionId = `TXN${Date.now()}`;
+    const trackingId = `TRK${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
+
+    // Insert into orders table
+    const [orderResult] = await connection.execute(
+      `INSERT INTO orders (name, address, city, email, pincode, phone, payment_method, total_amount, transaction_id, tracking_id, created_at) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        userDetails.name,
+        userDetails.address,
+        userDetails.city,
+        userDetails.email,
+        userDetails.pincode,
+        userDetails.phone,
+        paymentMethod,
+        total,
+        transactionId,
+        trackingId,
+      ]
+    );
+
+    const orderId = orderResult.insertId;
+
+    // Insert items into order_items table and update stock
+    for (const item of items) {
+      const totalAmount = item.quantity * item.product.price;
+
+      // Insert order item
+      await connection.execute(
+        `INSERT INTO order_items (order_id, product_id, quantity, price, total_price, product_name) 
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [
+          orderId, 
+          item.product.id, 
+          item.quantity, 
+          item.product.price, 
+          totalAmount, 
+          item.product.name
+        ]
+      );
+
+      // Check and update stock
+      const [stockResult] = await connection.execute(
+        `SELECT quantity FROM products WHERE id = ? FOR UPDATE`,
+        [item.product.id]
+      );
+
+      const currentStock = stockResult[0]?.quantity;
+      if (currentStock === undefined || currentStock < item.quantity) {
+        throw new Error(`Insufficient stock for product ${item.product.name}`);
+      }
+
+      await connection.execute(
+        `UPDATE products SET quantity = quantity - ? WHERE id = ?`,
+        [item.quantity, item.product.id]
+      );
+    }
+
+    // Commit transaction
+    await connection.commit();
+
+    // Send success response
+    res.status(201).json({
+      success: true,
+      orderId,
+      trackingId,
+      transactionId,
+    });
   } catch (error) {
-    console.error("Error creating Razorpay order:", error);
-    res.status(500).json({ error: "Failed to create Razorpay order" });
+    // Rollback transaction on error
+    await connection.rollback();
+    console.error('Error creating order:', error.message || error);
+    res.status(500).json({ success: false, message: 'Order creation failed' });
+  } finally {
+    // Ensure connection is closed
+    connection.end();
   }
 });
+
+
 
 // Generate UPI Link Route
 app.post('/api/generate-upi-link', (req, res) => {
