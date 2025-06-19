@@ -176,8 +176,8 @@ app.post('/api/orders', async (req, res) => {
         userDetails.phone,
         paymentMethod,
         total,
-        transactionId,
-        trackingId,
+        `TXN${Date.now()}`,
+        `TRK${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
       ]
     );
 
@@ -225,9 +225,21 @@ app.post('/api/orders', async (req, res) => {
     res.status(201).json({
       success: true,
       orderId,
-      trackingId,
-      transactionId,
+      trackingId: `TRK${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+      transactionId: `TXN${Date.now()}`,
+      userDetails,
+      items,
+      total,
+      paymentMethod
     });
+    console.log({
+  orderId,
+  userDetails,
+  items,
+  total,
+  paymentMethod
+});
+
   } catch (error) {
     // Rollback transaction on error
     await connection.rollback();

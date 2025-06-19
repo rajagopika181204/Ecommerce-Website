@@ -1,13 +1,23 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaArrowRight } from "react-icons/fa";
+import { FaCheckCircle, FaArrowRight, FaShoppingCart } from "react-icons/fa";
 
 const PaymentSuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { orderId, trackingId, transactionId } = location.state || {};
+  // Extract data from location.state
+  const { 
+    orderId, 
+    trackingId, 
+    transactionId, 
+    userDetails, 
+    items, 
+    total, 
+    paymentMethod 
+  } = location.state || {};
 
+  // Show error message if essential data is missing
   if (!orderId || !trackingId || !transactionId) {
     return (
       <div
@@ -49,6 +59,29 @@ const PaymentSuccessPage = () => {
       </div>
     );
   }
+
+  const handleViewOrders = () => {
+     console.log("Navigating to Billing Page with:", {
+    orderId,
+    trackingId,
+    transactionId,
+    userDetails,
+    items,
+    total,
+    paymentMethod,
+  });
+    navigate("/billing", {
+      state: {
+        orderId,
+        trackingId,
+        transactionId,
+        userDetails,
+        items,
+        total,
+        paymentMethod,
+      },
+    });
+  };
 
   return (
     <div
@@ -116,6 +149,24 @@ const PaymentSuccessPage = () => {
         onClick={() => navigate("/")}
       >
         Go to Home <FaArrowRight style={{ marginLeft: "10px" }} />
+      </button>
+      <button
+        style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "12px 20px",
+          fontSize: "16px",
+          color: "#fff",
+          backgroundColor: "#4CAF50",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+          transition: "background-color 0.3s ease",
+          marginTop: "10px",
+        }}
+        onClick={handleViewOrders}
+      >
+        <FaShoppingCart style={{ marginRight: "10px" }} /> View Orders
       </button>
     </div>
   );

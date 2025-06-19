@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaSearch } from "react-icons/fa";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./ProductList.css";
 
@@ -55,6 +55,25 @@ function ProductList() {
           <Link to="/wishlist">Wishlist ❤️</Link>
           <Link to="/cart">Cart 🛒</Link>
           <Link to="/contact">Contact</Link>
+           <FaSearch style={{marginRight:"5px"}}/><input
+            type="text"
+            placeholder="Search for products, brands, and more..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              flex: "1",
+              border: "none",
+              outline: "none",
+              fontSize: "16px",
+              paddingLeft: "10px",
+              color: "black",
+              backgroundColor: "#fff",
+              position: "relative",
+            maxWidth: "400px",
+            width: "100%",
+            align:"center",
+            }}
+          />
           <Link to="/login">Login</Link>
           <Link to="/order-history">My Orders</Link>
         </nav>
@@ -70,25 +89,7 @@ function ProductList() {
         }}
       >
           
-          <input
-            type="text"
-            placeholder="🔎Search for products, brands, and more..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              flex: "1",
-              border: "none",
-              outline: "none",
-              fontSize: "16px",
-              paddingLeft: "40px",
-              color: "black",
-              backgroundColor: "#fff",
-              position: "relative",
-            maxWidth: "400px",
-            width: "100%",
-            align:"center",
-            }}
-          />
+         
       </div>
 
       {/* Shop Section */}

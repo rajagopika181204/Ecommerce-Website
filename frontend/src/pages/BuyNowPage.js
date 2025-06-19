@@ -149,6 +149,10 @@ const BuyNowPage = () => {
             orderId: response.data.orderId,
             trackingId: response.data.trackingId,
             transactionId: response.data.transactionId,
+            userDetails: userDetails,  // Pass the correct user details
+            items: items,              // Pass the correct items array
+            total: calculatedTotal,    // Pass the calculated total
+            paymentMethod: userDetails.paymentMethod,
           },
         });
       }
