@@ -55,42 +55,48 @@ function ProductList() {
           <Link to="/wishlist">Wishlist ❤️</Link>
           <Link to="/cart">Cart 🛒</Link>
           <Link to="/contact">Contact</Link>
-           <FaSearch style={{marginRight:"5px"}}/><input
-            type="text"
-            placeholder="Search for products, brands, and more..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              flex: "1",
-              border: "none",
-              outline: "none",
-              fontSize: "16px",
-              paddingLeft: "10px",
-              color: "black",
-              backgroundColor: "#fff",
-              position: "relative",
-            maxWidth: "400px",
-            width: "100%",
-            align:"center",
-            }}
-          />
           <Link to="/login">Login</Link>
           <Link to="/order-history">My Orders</Link>
         </nav>
       </header>
 
-      {/* Enhanced Search Box */}
-      <div
-        className="search-box-wrapper"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          margin: "20px 0",
-        }}
-      >
-          
-         
-      </div>
+     <div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    position: "relative",
+    width: "100%",
+    maxWidth: "400px",
+    margin: "0 auto",
+  }}
+>
+  <FaSearch
+    style={{
+      position: "absolute",
+      left: "10px",
+      color: "#888",
+      fontSize: "20px",
+    }}
+  />
+  <input
+    type="text"
+    placeholder="Search for products, brands, and more..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    style={{
+      width: "100%",
+      padding: "10px 10px 10px 35px", // Add left padding to accommodate the icon
+      fontSize: "16px",
+      border: "1px solid #ccc",
+      borderRadius: "5px",
+      outline: "none",
+      color: "black",
+      backgroundColor: "#fff",
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+    }}
+  />
+</div>
+
 
       {/* Shop Section */}
       <div className="shop-section">
