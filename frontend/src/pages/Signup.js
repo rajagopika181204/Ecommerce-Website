@@ -1,70 +1,59 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
-import './Signup.css'; // your CSS file
-
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate ,Link} from "react-router-dom";
+import './Signup.css';
 function Signup() {
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/signup', form);
-      alert('Signup successful');
-      navigate('/');
+      const res = await axios.post("http://localhost:5000/signup", {
+        username,
+        email,
+        password,
+      });
+      alert(res.data.message);
+      navigate("/login"); // Redirect to login after successful signup
     } catch (err) {
-      alert(err.response?.data?.error || 'Signup failed');
+      alert(err.response?.data?.error || "Signup failed");
     }
   };
 
   return (
-    <div className="login-container"> {/* use same container class */}
-      <div className="login-box"> {/* use same box class */}
-        <h1 className="store-name">Signup</h1>
-        <form onSubmit={handleSignup}>
-          <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            name="username"
-            placeholder="Username"
-            value={form.username}
-            onChange={handleChange}
-            required
-          />
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-          <button type="submit" className="btn-submit">Signup</button>
-        </form>
+    <div>
+      <h2>Signup</h2>
+      <form onSubmit={handleSignup}>
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Signup</button>
+      </form>
         <p className="signup-link">
           Already have an account? <Link to="/">Login</Link>
         </p>
       </div>
-    </div>
   );
 }
 

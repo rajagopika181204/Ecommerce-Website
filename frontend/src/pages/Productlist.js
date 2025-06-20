@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useContext} from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { FaHeart, FaRegHeart, FaSearch } from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaSearch, FaUser } from "react-icons/fa";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./ProductList.css";
 import { FaShoppingCart } from "react-icons/fa";
+import { UserContext } from '../context/UserContext';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -13,6 +14,7 @@ function ProductList() {
     return savedWishlist ? JSON.parse(savedWishlist) : [];
   });
   const [searchTerm, setSearchTerm] = useState("");
+  const { user } = useContext(UserContext);
   const Navigate = useNavigate();
 
   useEffect(() => {
@@ -37,7 +39,7 @@ function ProductList() {
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
+   // Navigate to login if not logged in
   return (
     <div>
       {/* Navbar */}
@@ -55,8 +57,15 @@ function ProductList() {
           <Link to="/products">Products</Link>
           <Link to="/wishlist">Wishlist ❤️</Link>
           <Link to="/cart">Cart <FaShoppingCart /></Link>
+          {user ? (
+            <>
+              <button onClick={() => Navigate("/profile")}><FaUser/></button>
+              <button onClick={() => Navigate("/login")}>Logout</button>
+            </>
+          ) : (
+            <Link to="/login">Login</Link>
+          )}
           <Link to="/contact">Contact</Link>
-          <Link to="/login">Login</Link>
           <Link to="/order-history">My Orders</Link>
         </nav>
       </header>

@@ -31,7 +31,6 @@ async function connectDB() {
   });
 }
 
-// SIGNUP Route
 app.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -49,18 +48,26 @@ app.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
-    await connection.execute(
-      'INSERT INTO users (username, email, password,raw_password) VALUES (?.?, ?, ?)',
-      [username, email, hashed,password]
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Include raw_password in the query
+    const [result] = await connection.execute(
+      'INSERT INTO users (username, email, password, raw_password) VALUES (?, ?, ?, ?)',
+      [username, email, hashedPassword, password]
     );
-    res.json({ message: 'User registered successfully' });
+    console.log(result);
+    if (result.affectedRows === 1) {
+      res.json({ message: 'User registered successfully' });
+    } else {
+      res.status(500).json({ error: 'Failed to register user' });
+    }
   } catch (err) {
-    res.status(500).json({ error: 'Signup error', details: err.message });
+    res.status(500).json({ error: 'Database error', details: err.message });
   } finally {
     connection.end();
   }
 });
+
 
 // LOGIN Route
 app.post('/login', async (req, res) => {
@@ -81,14 +88,20 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: users[0].id }, JWT_SECRET, { expiresIn: '1h' });
-    res.json({ message: 'Login successful', token });
+     const user = {
+      id: users[0].id,
+      username: users[0].username,
+      email: users[0].email,
+    };
+
+    res.json({ message: "Login successful", user });
   } catch (err) {
     res.status(500).json({ error: 'Login failed', details: err.message });
   } finally {
     connection.end();
   }
 });
+
 
 // Fetch Products Route
 app.get('/products', async (req, res) => {

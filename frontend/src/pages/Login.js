@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
-
+import { UserContext } from "../context/UserContext";
 function Login() {
+  const { setUser } = useContext(UserContext); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -12,10 +13,12 @@ function Login() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5000/login', { email, password });
-      alert(res.data.message);
-      navigate('/products');
+      const { user } = res.data; // Assume server sends user info
+      setUser(user); // Update global user state
+      alert("Login successful!");
+      navigate("/products"); // Redirect after login
     } catch (err) {
-      alert(err.response?.data?.error || 'Login failed');
+      alert(err.response?.data?.error || "Login failed");
     }
   };
 
@@ -26,11 +29,11 @@ function Login() {
         <h2>Welcome Back</h2>
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label htmlFor="email">Username</label>
+            <label htmlFor="email">Email</label>
             <input
               id="email"
               type="text"
-              placeholder="Enter your username"
+              placeholder="Enter your Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
