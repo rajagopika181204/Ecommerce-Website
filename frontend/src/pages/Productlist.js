@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaHeart, FaRegHeart, FaSearch } from "react-icons/fa";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./ProductList.css";
+import { FaShoppingCart } from "react-icons/fa";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -53,7 +54,7 @@ function ProductList() {
           <Link to="/about">About</Link>
           <Link to="/products">Products</Link>
           <Link to="/wishlist">Wishlist ❤️</Link>
-          <Link to="/cart">Cart 🛒</Link>
+          <Link to="/cart">Cart <FaShoppingCart /></Link>
           <Link to="/contact">Contact</Link>
           <Link to="/login">Login</Link>
           <Link to="/order-history">My Orders</Link>

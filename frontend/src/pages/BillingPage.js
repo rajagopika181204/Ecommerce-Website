@@ -10,8 +10,8 @@ import {
   FaShoppingCart,
   FaCheckCircle,
   FaArrowLeft,
-  FaFemale,
   FaFilePdf,
+  FaUser,
 } from "react-icons/fa";
 
 const BillingPage = () => {
@@ -146,7 +146,8 @@ const BillingPage = () => {
         </p>
         <p>
           <FaCheckCircle style={{ marginRight: "5px", color: "#4CAF50" }} />
-          <strong>Transaction ID:</strong> {transactionId || "N/A"}
+           <strong>Transaction ID:</strong>{" "}
+  {transactionId || "Null"}
         </p>
         <p>
           <FaCheckCircle style={{ marginRight: "5px", color: "#4CAF50" }} />
@@ -169,7 +170,7 @@ const BillingPage = () => {
           Shipping Details:
         </h2>
         <p>
-          <FaFemale style={{ marginRight: "5px" }}/>
+          <FaUser style={{ marginRight: "5px" }}/>
           {userDetails?.name||"N/A"}
         </p>
         <p>
@@ -244,7 +245,7 @@ const BillingPage = () => {
           onClick={generateInvoice}
         >
           <FaFilePdf style={{ marginRight: "5px" }} />Download Invoice
-        </button>
+        </button>&nbsp;&nbsp;
         <button
           style={{
             padding: "12px 20px",

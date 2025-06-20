@@ -51,8 +51,8 @@ app.post('/signup', async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     await connection.execute(
-      'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-      [username, email, hashed]
+      'INSERT INTO users (username, email, password,raw_password) VALUES (?.?, ?, ?)',
+      [username, email, hashed,password]
     );
     res.json({ message: 'User registered successfully' });
   } catch (err) {
@@ -64,16 +64,16 @@ app.post('/signup', async (req, res) => {
 
 // LOGIN Route
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   const connection = await connectDB();
   try {
     const [users] = await connection.execute(
-      'SELECT * FROM users WHERE username = ?',
-      [username]
+      'SELECT * FROM users WHERE email= ?',
+      [email]
     );
     if (users.length === 0) {
-      return res.status(401).json({ error: 'User not found' });
+      return res.status(401).json({ error: 'Email not found' });
     }
 
     const valid = await bcrypt.compare(password, users[0].password);
@@ -145,11 +145,13 @@ app.post('/api/update-stock', async (req, res) => {
     connection.end();
   }
 });
+
+
 app.post('/api/orders', async (req, res) => {
   const { items, userDetails, total, paymentMethod } = req.body;
 
   // Validate request body
-  if (!items || !userDetails || !total || !paymentMethod) {
+  if (!items || !userDetails.email || !total || !paymentMethod) {
     return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
@@ -160,7 +162,8 @@ app.post('/api/orders', async (req, res) => {
     await connection.beginTransaction();
 
     // Generate transaction and tracking IDs
-    const transactionId = `TXN${Date.now()}`;
+    const transactionId =
+      paymentMethod === "upi" ? `TXN${Date.now()}` : null; // Only generate transactionId for UPI
     const trackingId = `TRK${Math.random().toString(36).substr(2, 8).toUpperCase()}`;
 
     // Insert into orders table
@@ -176,8 +179,8 @@ app.post('/api/orders', async (req, res) => {
         userDetails.phone,
         paymentMethod,
         total,
-        `TXN${Date.now()}`,
-        `TRK${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
+        transactionId, // Save transactionId only if it's generated (UPI)
+        trackingId,
       ]
     );
 
@@ -192,12 +195,12 @@ app.post('/api/orders', async (req, res) => {
         `INSERT INTO order_items (order_id, product_id, quantity, price, total_price, product_name) 
          VALUES (?, ?, ?, ?, ?, ?)`,
         [
-          orderId, 
-          item.product.id, 
-          item.quantity, 
-          item.product.price, 
-          totalAmount, 
-          item.product.name
+          orderId,
+          item.product.id,
+          item.quantity,
+          item.product.price,
+          totalAmount,
+          item.product.name,
         ]
       );
 
@@ -224,22 +227,25 @@ app.post('/api/orders', async (req, res) => {
     // Send success response
     res.status(201).json({
       success: true,
+      message:'Order Created successfully',
       orderId,
-      trackingId: `TRK${Math.random().toString(36).substr(2, 8).toUpperCase()}`,
-      transactionId: `TXN${Date.now()}`,
+      trackingId,
+      transactionId, // Include transactionId only if it's generated
       userDetails,
       items,
       total,
-      paymentMethod
+      paymentMethod,
     });
-    console.log({
-  orderId,
-  userDetails,
-  items,
-  total,
-  paymentMethod
-});
 
+    console.log({
+      orderId,
+      trackingId,
+      transactionId,
+      userDetails,
+      items,
+      total,
+      paymentMethod,
+    });
   } catch (error) {
     // Rollback transaction on error
     await connection.rollback();
@@ -282,6 +288,36 @@ app.post("/api/billing", (req, res) => {
 
   res.json({ message: "Order saved", orderId });
 });
+
+app.get("/api/my-orders", async (req, res) => {
+  const { username } = req.query;
+
+  if (!username) {
+    return res.status(400).json({ success: false, message: "Username is required." });
+  }
+
+  const connection = await connectDB();
+  try {
+    const [orders] = await connection.execute(
+      `SELECT id, created_at, total_amount, payment_method, transaction_id, tracking_id 
+       FROM orders 
+       WHERE name = ?`,
+      [username]
+    );
+
+    if (orders.length === 0) {
+      return res.status(404).json({ success: false, message: "No orders found." });
+    }
+
+    res.json({ success: true, orders });
+  } catch (err) {
+    console.error("Error fetching orders:", err.message);
+    res.status(500).json({ success: false, message: "Error fetching orders." });
+  } finally {
+    connection.end();
+  }
+});
+
 
 // Fetch Cart Items for a User
 app.get('/api/cart/:userId', async (req, res) => {

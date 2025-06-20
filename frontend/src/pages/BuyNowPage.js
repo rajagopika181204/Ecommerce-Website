@@ -135,11 +135,16 @@ const BuyNowPage = () => {
     }
 
     try {
+
+        const transactionId =
+      userDetails.paymentMethod === "upi" ? `TXN${Date.now()}` : null;
+
       const response = await axios.post("http://localhost:5000/api/orders", {
         items,
         userDetails,
         total: calculatedTotal,
         paymentMethod: userDetails.paymentMethod,
+        transactionId,
       });
 
       if (response.data && response.data.orderId) {
@@ -148,7 +153,7 @@ const BuyNowPage = () => {
           state: {
             orderId: response.data.orderId,
             trackingId: response.data.trackingId,
-            transactionId: response.data.transactionId,
+            transactionId:response.data.transactionId,
             userDetails: userDetails,  // Pass the correct user details
             items: items,              // Pass the correct items array
             total: calculatedTotal,    // Pass the calculated total
@@ -174,7 +179,7 @@ const BuyNowPage = () => {
           color: "#333",
         }}
       >
-        <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Checkout</h1>
+        <h1 style={{ textAlign: "center", marginBottom: "20px", color:"pink" }}>Checkout</h1>
 
         <div
           style={{

@@ -18,7 +18,7 @@ const PaymentSuccessPage = () => {
   } = location.state || {};
 
   // Show error message if essential data is missing
-  if (!orderId || !trackingId || !transactionId) {
+  if (!orderId || !trackingId) {
     return (
       <div
         style={{
@@ -126,9 +126,11 @@ const PaymentSuccessPage = () => {
         <p style={{ fontSize: "16px", margin: "5px 0" }}>
           <strong>Tracking ID:</strong> {trackingId}
         </p>
+         {paymentMethod === "upi" && transactionId && (
         <p style={{ fontSize: "16px", margin: "5px 0" }}>
           <strong>Transaction ID:</strong> {transactionId}
         </p>
+         )}
       </div>
 
       <button

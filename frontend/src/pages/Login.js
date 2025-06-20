@@ -4,14 +4,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
 function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/login', { username, password });
+      const res = await axios.post('http://localhost:5000/login', { email, password });
       alert(res.data.message);
       navigate('/products');
     } catch (err) {
@@ -26,15 +26,15 @@ function Login() {
         <h2>Welcome Back</h2>
         <form onSubmit={handleLogin}>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="email">Username</label>
             <input
-              id="username"
+              id="email"
               type="text"
               placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              autoComplete="username"
+              autoComplete="email"
             />
           </div>
           <div className="form-group">
