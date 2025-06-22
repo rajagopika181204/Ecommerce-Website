@@ -48,11 +48,8 @@ function Wishlist() {
         </div>
         <nav className="navbar-links">
           <Link to="/about">About</Link>
-          <Link to="/products">Products</Link>
-          <Link to="/wishlist">Wishlist ❤️</Link>
+          <Link to="/products">Home</Link>
           <Link to="/cart">Cart 🛒</Link>
-          <Link to="/contact">Contact</Link>
-          <Link to="/login">Login</Link>
         </nav>
       </header>
 

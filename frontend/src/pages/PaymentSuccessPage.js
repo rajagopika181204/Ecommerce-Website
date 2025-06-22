@@ -7,14 +7,14 @@ const PaymentSuccessPage = () => {
   const navigate = useNavigate();
 
   // Extract data from location.state
-  const { 
-    orderId, 
-    trackingId, 
-    transactionId, 
-    userDetails, 
-    items, 
-    total, 
-    paymentMethod 
+  const {
+    orderId,
+    trackingId,
+    transactionId,
+    userDetails,
+    items,
+    total,
+    paymentMethod,
   } = location.state || {};
 
   // Show error message if essential data is missing
@@ -61,15 +61,6 @@ const PaymentSuccessPage = () => {
   }
 
   const handleViewOrders = () => {
-     console.log("Navigating to Billing Page with:", {
-    orderId,
-    trackingId,
-    transactionId,
-    userDetails,
-    items,
-    total,
-    paymentMethod,
-  });
     navigate("/billing", {
       state: {
         orderId,
@@ -126,50 +117,51 @@ const PaymentSuccessPage = () => {
         <p style={{ fontSize: "16px", margin: "5px 0" }}>
           <strong>Tracking ID:</strong> {trackingId}
         </p>
-         {paymentMethod === "upi" && transactionId && (
-        <p style={{ fontSize: "16px", margin: "5px 0" }}>
-          <strong>Transaction ID:</strong> {transactionId}
-        </p>
-         )}
+        {paymentMethod === "upi" && transactionId && (
+          <p style={{ fontSize: "16px", margin: "5px 0" }}>
+            <strong>Transaction ID:</strong> {transactionId}
+          </p>
+        )}
       </div>
 
-      <button
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "12px 20px",
-          fontSize: "16px",
-          color: "#fff",
-          backgroundColor: "#4CAF50",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          margin: "10px auto 0",
-          transition: "background-color 0.3s ease",
-        }}
-        onClick={() => navigate("/")}
-      >
-        Go to Home <FaArrowRight style={{ marginLeft: "10px" }} />
-      </button>
-      <button
-        style={{
-          display: "flex",
-          alignItems: "center",
-          padding: "12px 20px",
-          fontSize: "16px",
-          color: "#fff",
-          backgroundColor: "#4CAF50",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-          transition: "background-color 0.3s ease",
-          marginTop: "10px",
-        }}
-        onClick={handleViewOrders}
-      >
-        <FaShoppingCart style={{ marginRight: "10px" }} /> View Orders
-      </button>
+      <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+        <button
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "12px 20px",
+            fontSize: "16px",
+            color: "#fff",
+            backgroundColor: "#4CAF50",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+          }}
+          onClick={() => navigate("/")}
+        >
+          Go to Home <FaArrowRight style={{ marginLeft: "10px" }} />
+        </button>
+        <button
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "12px 20px",
+            fontSize: "16px",
+            color: "#fff",
+            backgroundColor: "#4CAF50",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            transition: "background-color 0.3s ease",
+          }}
+          onClick={handleViewOrders}
+        >
+          <FaShoppingCart style={{ marginRight: "10px" }} /> View Orders
+        </button>
+      </div>
     </div>
   );
 };

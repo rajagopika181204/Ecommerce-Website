@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate ,Link} from "react-router-dom";
-import './Signup.css';
+import { useNavigate, Link } from "react-router-dom";
+import "./Signup.css";
+
 function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -50,10 +51,10 @@ function Signup() {
         />
         <button type="submit">Signup</button>
       </form>
-        <p className="signup-link">
-          Already have an account? <Link to="/">Login</Link>
-        </p>
-      </div>
+      <p className="signup-link">
+        Already have an account? <Link to="/">Login</Link>
+      </p>
+    </div>
   );
 }
 

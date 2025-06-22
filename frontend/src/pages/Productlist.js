@@ -59,14 +59,11 @@ function ProductList() {
           <Link to="/cart">Cart <FaShoppingCart /></Link>
           {user ? (
             <>
-              <button onClick={() => Navigate("/profile")}><FaUser/></button>
-              <button onClick={() => Navigate("/login")}>Logout</button>
+              <Link to="/profile">My Profile<FaUser/></Link>
             </>
           ) : (
             <Link to="/login">Login</Link>
           )}
-          <Link to="/contact">Contact</Link>
-          <Link to="/order-history">My Orders</Link>
         </nav>
       </header>
 

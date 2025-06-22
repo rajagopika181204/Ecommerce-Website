@@ -31,42 +31,53 @@ async function connectDB() {
   });
 }
 
+
+// Update with your DB connection path
+
 app.post('/signup', async (req, res) => {
   const { username, email, password } = req.body;
 
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: 'Missing fields' });
+  // Validate input fields
+  if (!username || !email  || !password) {
+    return res.status(400).json({ error: 'All fields are required' });
   }
 
   const connection = await connectDB();
   try {
+    // Check if the user already exists
     const [existing] = await connection.execute(
       'SELECT * FROM users WHERE username = ? OR email = ?',
       [username, email]
     );
     if (existing.length > 0) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ error: 'Username or Email already exists' });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Include raw_password in the query
+    // Insert the user into the database
     const [result] = await connection.execute(
       'INSERT INTO users (username, email, password, raw_password) VALUES (?, ?, ?, ?)',
-      [username, email, hashedPassword, password]
+      [username, email,  hashedPassword, password]
     );
-    console.log(result);
+
+    // Check if the user was successfully inserted
     if (result.affectedRows === 1) {
       res.json({ message: 'User registered successfully' });
     } else {
       res.status(500).json({ error: 'Failed to register user' });
     }
   } catch (err) {
+    console.error('Database error:', err.message);
     res.status(500).json({ error: 'Database error', details: err.message });
   } finally {
     connection.end();
   }
 });
+
+
+
 
 
 // LOGIN Route
@@ -270,6 +281,59 @@ app.post('/api/orders', async (req, res) => {
   }
 });
 
+
+app.get("/api/order", async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const connection = await connectDB(); // Establish database connection
+    const [orders] = await connection.execute(
+      "SELECT id, name, address, city, email, pincode, phone, total_amount, payment_method, transaction_id, tracking_id, created_at FROM orders WHERE email = ?",
+      [email]
+    );
+
+    console.log("Orders from DB:", orders); // Debug database response
+    res.json(orders);
+  } catch (err) {
+    console.error("Error fetching orders:", err.message || err);
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
+
+app.get('/api/user', async (req, res) => {
+  const { email } = req.query;
+
+  const connection = await connectDB();
+  const [user] = await connection.execute(
+    "SELECT username, email, phone, address FROM users WHERE email = ?",
+    [email]
+  );
+  res.json(user);
+});
+
+// Fetch user details by email
+app.get('/api/users/:email', async (req, res) => {
+  const { email } = req.params;
+  const connection = await connectDB();
+  try {
+    const [rows] = await connection.execute(
+      'SELECT username, email, phone, address FROM users WHERE email = ?',
+      [email]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch user data', details: err.message });
+  } finally {
+    connection.end();
+  }
+});
 
 
 // Generate UPI Link Route
