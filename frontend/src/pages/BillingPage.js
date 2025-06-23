@@ -69,7 +69,7 @@ const BillingPage = () => {
   doc.text("Order Items", 20, 165);
   autoTable(doc, {
     startY: 170,
-    head: [["Product Name", "Quantity", "Price (₹)", "Total (₹)"]],
+    head: [["Product Name", "Quantity", "Price", "Total"]],
     body: items.map((item) => [
       item.product.name,
       item.quantity,
@@ -85,7 +85,7 @@ const BillingPage = () => {
   const finalY = doc.lastAutoTable.finalY + 10;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
-  doc.text(`Total Amount: ₹${total || 0}`, 20, finalY);
+  doc.text(`Total Amount: ${total || 0}`, 20, finalY);
 
   // Footer Section
   doc.setFontSize(10);

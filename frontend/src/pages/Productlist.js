@@ -43,7 +43,7 @@ function ProductList() {
   return (
     <div>
       {/* Navbar */}
-      <header className="navbar">
+      <div className="navbar">
         <div className="navbar-brand">
           <img
             src="/images/logo.jpeg"
@@ -65,7 +65,7 @@ function ProductList() {
             <Link to="/login">Login</Link>
           )}
         </nav>
-      </header>
+      </div>
 
      <div
   style={{
@@ -146,15 +146,8 @@ function ProductList() {
               </div>
             ))
           ) : (
-            <div
-              style={{
-                textAlign: "center",
-                margin: "20px 0",
-                fontSize: "18px",
-                color: "#555",
-              }}
-            >
-              No products found matching your search.
+            <div className="noproduct">
+              <center>No products found matching your search !</center>
             </div>
           )}
         </div>

@@ -55,7 +55,7 @@ const Navbar = () => {
             cursor: "pointer",
             fontSize: "16px",
           }}
-          onClick={() => alert("Navigate to Profile")}
+          onClick={() => navigate("/profile")}
         >
           <FaUser /> Profile
         </button>
@@ -179,7 +179,7 @@ const BuyNowPage = () => {
           color: "#333",
         }}
       >
-        <h1 style={{ textAlign: "center", marginBottom: "20px", color:"pink" }}>Checkout</h1>
+        <h1 style={{ textAlign: "center", marginBottom: "20px", color:"black" }}>Checkout</h1>
 
         <div
           style={{

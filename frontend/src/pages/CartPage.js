@@ -174,7 +174,7 @@ const styles = {
     marginTop: "80px",
   },
   heading: {
-    color: "white",
+    color: "black",
     textAlign: "center",
     marginBottom: "20px",
   },
@@ -187,7 +187,7 @@ const styles = {
     margin: "0 auto",
   },
   cartItem: {
-    color: "white",
+    color: "blue",
     display: "flex",
     alignItems: "center",
     border: "1px solid #ddd",
@@ -218,7 +218,7 @@ const styles = {
     margin: "5px 0",
   },
   itemPrice: {
-    color: "white",
+    color: "blue",
     margin: "5px 0",
   },
   actions: {
@@ -230,7 +230,7 @@ const styles = {
     backgroundColor: "#4CAF50",
     color: "white",
     textAlign: "center",
-    padding: "10px",
+    padding: "10px 15px",
     borderRadius: "5px",
     marginBottom: "20px",
   },
@@ -257,7 +257,7 @@ const styles = {
     marginTop: "20px",
     fontSize: "18px",
     fontWeight: "bold",
-    color: "pink",
+    color: "black",
   },
   actionsContainer: {
     display: "flex",

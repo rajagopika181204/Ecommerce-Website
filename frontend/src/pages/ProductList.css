@@ -18,7 +18,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 20px;
-  background-color: #e74c3c;
+  background-color: #e491d5;
   color: white;
   font-size: 25px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -26,7 +26,6 @@ body {
   top: 0;
   z-index: 100;
   width: 100%;
-  
   margin: 0;
   height: 90px;
 }
@@ -122,9 +121,9 @@ body {
 .shop-section h1 {
   font-size: 38px;
   margin-bottom: 10;
-  margin-top: 1px;
+  margin-top: 0px;
   font-weight: 700;
-  color: #f0e9e9;
+  color: black;
   text-align: center;
 }
 
@@ -223,6 +222,15 @@ body {
 
 .shop-now:hover {
   background-color: #c0392b;
+}
+
+.noproduct{
+   
+                text-align: center;
+                margin: 50px 20px;
+                font-Size: 18px;
+                color: "#555";
+                font-weight: 600;
 }
 
 /* Footer */

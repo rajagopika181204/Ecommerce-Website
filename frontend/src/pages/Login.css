@@ -4,7 +4,7 @@ body,html {
   min-height: 100vh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  background: linear-gradient(135deg, #ffd6d6, #fff5e1);
   overflow-y: auto;
 }
 
@@ -27,6 +27,8 @@ body,html {
   box-shadow: 0 0 30px #00ffe7;
   position: relative;
   overflow: hidden;
+  align-items: center;
+  justify-items: center;
 }
 
 /* Add some glowing animated lines in the background */
@@ -69,12 +71,6 @@ body,html {
   font-weight: 700;
   letter-spacing: 3px;
   margin-bottom: 10px;
-  color: #00ffe7;
-  text-shadow:
-    0 0 8px #00ffe7,
-    0 0 15px #00ffe7,
-    0 0 20px #00ffe7,
-    0 0 40px #00ffe7;
   user-select: none;
 }
 
@@ -106,7 +102,6 @@ input::placeholder {
 input:focus {
   outline: none;
   box-shadow: 0 0 10px #00ffe7;
-  background-color: #222;
 }
 
 /* Labels */
@@ -115,7 +110,7 @@ label {
   text-align: left;
   font-weight: 600;
   margin-bottom: 5px;
-  color: #00ffe7;
+  color: black;
   text-shadow: 0 0 2px #00ffe7;
 }
 

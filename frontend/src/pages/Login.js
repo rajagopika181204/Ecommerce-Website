@@ -23,7 +23,7 @@ function Login() {
   };
 
   return (
-    <div className="login-container">
+    <center><br/><br/><br/><br/><div className="login-container">
       <div className="login-box">
         <h1 className="store-name">TechGadget Store</h1>
         <h2>Welcome Back</h2>
@@ -58,7 +58,7 @@ function Login() {
           Don't have an account? <Link to="/signup">Signup</Link>
         </p>
       </div>
-    </div>
+    </div></center>
   );
 }
 
