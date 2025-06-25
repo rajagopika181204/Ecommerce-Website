@@ -7,16 +7,12 @@ import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
 import { CartProvider } from "./context/CartContext";
 import BuyNowPage from "./pages/BuyNowPage";
-import UPIPaymentPage from "./pages/UPIPaymentPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import BillingPage from "./pages/BillingPage";
-//import TrackingDetailsPage from "./pages/TrackingDetailsPage";
 import AboutPage from "./pages/About";
-import TrackingPage from"./pages/TrackingPage";
 import Wishlist from "./pages/Wishlist";
-import OrderHistoryPage from "./pages/OrderHistoryPage";
 import Profile from "./pages/Profile.js";
-
+import AddAddressPage from "./pages/AddAddressPage.js";
 function AppWrapper() {
   return (
     <>
@@ -29,14 +25,12 @@ function AppWrapper() {
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/buy-now" element={<BuyNowPage />} />
-        <Route path="/upi-payment" element={<UPIPaymentPage />} />
         <Route path="/payment-success" element={<PaymentSuccessPage />} />
         <Route path="/billing" element={<BillingPage />} />
-        <Route path="/tracking" element={<TrackingPage/>} />
         <Route path="/About" element={<AboutPage/>} />
         <Route path="/Wishlist" element={<Wishlist/>} />
-        <Route path="/order-history" element={<OrderHistoryPage />} />
          <Route path="/profile" element={<Profile />} />   
+        <Route path="/add-address" element={<AddAddressPage />} />
       </Routes>
     </>
   );

@@ -207,6 +207,26 @@ app.post('/api/orders', async (req, res) => {
         trackingId,
       ]
     );
+    
+    // Before inserting the order, save or update user address
+await connection.execute(
+  `INSERT INTO user_addresses (email, name, address, city, pincode, phone) 
+   VALUES (?, ?, ?, ?, ?, ?)
+   ON DUPLICATE KEY UPDATE 
+   name = VALUES(name), 
+   address = VALUES(address), 
+   city = VALUES(city), 
+   pincode = VALUES(pincode), 
+   phone = VALUES(phone)`,
+  [
+    userDetails.email,
+    userDetails.name,
+    userDetails.address,
+    userDetails.city,
+    userDetails.pincode,
+    userDetails.phone,
+  ]
+);
 
     const orderId = orderResult.insertId;
 
@@ -304,36 +324,6 @@ app.get("/api/order", async (req, res) => {
   }
 });
 
-app.get('/api/user', async (req, res) => {
-  const { email } = req.query;
-
-  const connection = await connectDB();
-  const [user] = await connection.execute(
-    "SELECT username, email, phone, address FROM users WHERE email = ?",
-    [email]
-  );
-  res.json(user);
-});
-
-// Fetch user details by email
-app.get('/api/users/:email', async (req, res) => {
-  const { email } = req.params;
-  const connection = await connectDB();
-  try {
-    const [rows] = await connection.execute(
-      'SELECT username, email, phone, address FROM users WHERE email = ?',
-      [email]
-    );
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch user data', details: err.message });
-  } finally {
-    connection.end();
-  }
-});
 
 
 // Generate UPI Link Route
@@ -352,67 +342,7 @@ app.post('/api/generate-upi-link', (req, res) => {
 
 let orders = []; // simple in-memory store
 
-app.post("/api/billing", (req, res) => {
-  const { items, totalAmount, customer } = req.body;
 
-  if (!items || !totalAmount) {
-    return res.status(400).json({ error: "Missing billing data" });
-  }
-
-  const orderId = orders.length + 1;
-  const order = { orderId, items, totalAmount, customer, date: new Date() };
-  orders.push(order);
-
-  res.json({ message: "Order saved", orderId });
-});
-
-app.get("/api/my-orders", async (req, res) => {
-  const { username } = req.query;
-
-  if (!username) {
-    return res.status(400).json({ success: false, message: "Username is required." });
-  }
-
-  const connection = await connectDB();
-  try {
-    const [orders] = await connection.execute(
-      `SELECT id, created_at, total_amount, payment_method, transaction_id, tracking_id 
-       FROM orders 
-       WHERE name = ?`,
-      [username]
-    );
-
-    if (orders.length === 0) {
-      return res.status(404).json({ success: false, message: "No orders found." });
-    }
-
-    res.json({ success: true, orders });
-  } catch (err) {
-    console.error("Error fetching orders:", err.message);
-    res.status(500).json({ success: false, message: "Error fetching orders." });
-  } finally {
-    connection.end();
-  }
-});
-
-
-// Fetch Cart Items for a User
-app.get('/api/cart/:userId', async (req, res) => {
-  const { userId } = req.params;
-  const connection = await connectDB();
-
-  try {
-    const [cartItems] = await connection.execute(
-      'SELECT c.product_id, p.name, p.price, p.image_url, c.quantity FROM cart c JOIN products p ON c.product_id = p.id WHERE c.user_id = ?',
-      [userId]
-    );
-    res.json(cartItems);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch cart items', details: err.message });
-  } finally {
-    connection.end();
-  }
-});
 
 // Save Cart Items for a User
 app.post('/api/cart', async (req, res) => {
@@ -443,93 +373,96 @@ app.post('/api/cart', async (req, res) => {
   }
 });
 
-app.post("/api/orders", async (req, res) => {
-    const { userId, totalAmount, paymentMethod, items } = req.body;
 
-    if (!userId || !totalAmount || !paymentMethod || !items) {
-        return res.status(400).json({ error: "Missing required fields" });
+
+
+app.get('/api/address/:email', async (req, res) => {
+  const { email } = req.params;
+
+  const connection = await connectDB();
+
+  try {
+    const [result] = await connection.execute(
+      `SELECT name, address, city, pincode, phone 
+       FROM user_addresses 
+       WHERE email = ?`,
+      [email]
+    );
+
+    if (result.length === 0) {
+      return res.status(404).json({ success: false, message: 'No saved address found.' });
     }
 
-    const connection = await connectDB();
-    try {
-        await connection.beginTransaction();
-
-        // Insert into orders table
-        const [orderResult] = await connection.execute(
-            "INSERT INTO orders (user_id, total_amount, payment_method, status) VALUES (?, ?, ?, ?)",
-            [userId, totalAmount, paymentMethod, "pending"]
-        );
-
-        const orderId = orderResult.insertId;
-
-        // Insert into order_items table
-        for (const item of items) {
-            await connection.execute(
-                "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)",
-                [orderId, item.productId, item.quantity, item.price]
-            );
-        }
-
-        await connection.commit();
-        res.status(201).json({ message: "Order saved successfully", orderId });
-    } catch (err) {
-        await connection.rollback();
-        console.error("Error saving order:", err);
-        res.status(500).json({ error: "Failed to save order" });
-    } finally {
-        connection.end();
-    }
-});
-
-app.get("/api/orders/:userId", async (req, res) => {
-    const { userId } = req.params;
-
-    const connection = await connectDB();
-    try {
-        // Fetch orders for the specific user
-        const [orders] = await connection.execute(
-            "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC",
-            [userId]
-        );
-
-        // Fetch items for each order
-        for (const order of orders) {
-            const [items] = await connection.execute(
-                "SELECT * FROM order_items WHERE order_id = ?",
-                [order.id]
-            );
-            order.items = items; // Attach items to each order
-        }
-
-        res.json(orders);
-    } catch (err) {
-        console.error("Error fetching orders:", err);
-        res.status(500).json({ error: "Failed to fetch orders" });
-    } finally {
-        connection.end();
-    }
-});
-
-
-// Mock tracking data
-const trackingData = {
-  TRK123ABC: { status: "Shipped", expectedDelivery: "2025-06-15" },
-  TRK456DEF: { status: "In Transit", expectedDelivery: "2025-06-18" },
-};
-
-// API endpoint for tracking
-app.get("/track/:id", (req, res) => {
-  const trackingID = req.params.id;
-  const data = trackingData[trackingID];
-
-  if (data) {
-    res.json(data); // Return the tracking data
-  } else {
-    res.status(404).json({ error: "Tracking ID not found." });
+    res.status(200).json({ success: true, address: result[0] });
+  } catch (error) {
+    console.error('Error fetching address:', error.message || error);
+    res.status(500).json({ success: false, message: 'Failed to fetch address' });
+  } finally {
+    connection.end();
   }
 });
 
 
+// Add this near your other route imports
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+
+// GET All Addresses
+app.get("/api/get-addresses", async (req, res) => {
+  try {
+    const connection = await connectDB();
+    const [rows] = await connection.execute("SELECT * FROM user_addresses");
+    connection.end();
+
+    if (rows.length > 0) {
+      res.json({ success: true, addresses: rows });
+    } else {
+      res.json({ success: false, message: "No addresses found." });
+    }
+  } catch (error) {
+    console.error("Error fetching addresses:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+app.post('/api/save-address', async (req, res) => {
+  const { name, address, city, email, pincode, phone } = req.body;
+
+  // Validate the input fields
+  if (!name || !address || !city || !email || !pincode || !phone) {
+    return res.status(400).json({ success: false, message: 'All fields are required.' });
+  }
+
+  try {
+    const connection = await connectDB();
+
+    // Insert a new address into the database
+    await connection.execute(
+      `INSERT INTO user_addresses (name, address, city, email, pincode, phone) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [name, address, city, email, pincode, phone]
+    );
+
+    connection.end();
+    res.json({ success: true, message: 'Address saved successfully.' });
+  } catch (error) {
+    console.error('Error saving address:', error.message);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+
+// Delete Address
+app.delete("/api/delete-address/:id", async (req, res) => {
+  try {
+    const connection = await connectDB();
+    await connection.execute("DELETE FROM user_addresses WHERE id = ?", [req.params.id]);
+    connection.end();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 // Start the Server
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
