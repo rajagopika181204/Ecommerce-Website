@@ -15,16 +15,26 @@ function ProductDetails() {
   const { addToCart } = useContext(CartContext);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [recommendedProducts, setRecommendedProducts] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState("");
 
   useEffect(() => {
     axios.get("http://localhost:5000/products").then((res) => {
       const found = res.data.find((p) => p.id === parseInt(id));
       setProduct(found);
+      setRecommendedProducts(
+        res.data.filter((p) => p.id !== parseInt(id)).slice(0, 4)
+      );
     });
+    // Fetch reviews for the product
+    axios
+      .get(`http://localhost:5000/reviews/${id}`)
+      .then((res) => setReviews(res.data))
+      .catch((err) => console.error(err));
   }, [id]);
 
-  if (!product) return <div>Loading...</div>;
-   const handleAddToCart = () => {
+  const handleAddToCart = () => {
     try {
       addToCart(product, parseInt(quantity));
       toast.success("Added to cart successfully!", {
@@ -43,8 +53,32 @@ function ProductDetails() {
       });
     }
   };
+
+  const handleAddReview = () => {
+    if (newReview.trim()) {
+      const review = {
+        productId: id,
+        text: newReview,
+        date: new Date().toISOString(),
+      };
+      axios
+        .post("http://localhost:5000/reviews", review)
+        .then((res) => {
+          setReviews([...reviews, res.data]);
+          setNewReview("");
+          toast.success("Review added successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        })
+        .catch((err) => console.error(err));
+    }
+  };
+
+  if (!product) return <div>Loading...</div>;
+
   return (
-     <div className="font-sans bg-pink-50 min-h-screen pb-12">
+    <div className="font-sans bg-gradient-to-r from-pink-50 via-white to-pink-50 min-h-screen pb-4">
       <ToastContainer />
       {/* Navbar */}
       <nav className="bg-pink-700 text-white py-4 px-6 shadow-md flex justify-between items-center">
@@ -73,7 +107,7 @@ function ProductDetails() {
       </button>
 
       {/* Product Details */}
-      <div className="flex-1 container mx-auto px-10 py-8">
+      <div className="container mx-auto px-10 py-8">
         <div className="flex flex-col lg:flex-row bg-gray-100 p-6 rounded-lg shadow-lg">
           {/* Image Section */}
           <div className="flex-1 mb-6 lg:mb-0 text-center">
@@ -112,7 +146,7 @@ function ProductDetails() {
                 min={1}
                 max={product.quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-16 text-center p-2 border rounded-lg  text-black focus:outline-none focus:ring focus:ring-pink-700"
+                className="w-16 text-center p-2 border rounded-lg text-black focus:outline-none focus:ring focus:ring-pink-700"
               />
             </div>
 
@@ -137,7 +171,7 @@ function ProductDetails() {
               </div>
             </div>
 
-           {/* Action Buttons */}
+            {/* Action Buttons */}
             <div className="flex space-x-4">
               <button
                 className="px-6 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition"
@@ -154,6 +188,60 @@ function ProductDetails() {
                 Buy Now
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-10">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">Customer Reviews</h3>
+          <div className="bg-white p-6 rounded-lg shadow mb-4">
+            {reviews.length > 0 ? (
+              reviews.map((review, index) => (
+                <div key={index} className="border-b border-gray-200 pb-4 mb-4">
+                  <p className="text-gray-700">{review.text}</p>
+                  <p className="text-gray-500 text-sm">{new Date(review.date).toLocaleString()}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-600">No reviews yet. Be the first to review this product!</p>
+            )}
+          </div>
+          <div className="flex items-center space-x-4">
+            <input
+              type="text"
+              value={newReview}
+              onChange={(e) => setNewReview(e.target.value)}
+              placeholder="Write your review..."
+              className="flex-1 p-2 border rounded-lg text-black focus:outline-none focus:ring focus:ring-pink-700"
+            />
+            <button
+              onClick={handleAddReview}
+              className="px-6 py-2 bg-pink-700 text-white rounded-lg shadow hover:bg-pink-600 transition"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+
+        {/* Recommendations Section */}
+        <div className="mt-10">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">You May Also Like</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {recommendedProducts.map((recProduct) => (
+              <div
+                key={recProduct.id}
+                className="bg-gray-100 p-4 rounded-lg shadow hover:shadow-lg transition"
+              >
+                <img
+                  src={`http://localhost:3000/images/${recProduct.image_url}`}
+                  alt={recProduct.name}
+                  className="w-full h-40 object-cover rounded-lg mb-4 cursor-pointer"
+                  onClick={() => navigate(`/products/${recProduct.id}`)}
+                />
+                <h4 className="text-lg font-semibold text-gray-800">{recProduct.name}</h4>
+                <p className="text-pink-700 font-bold">₹{recProduct.price}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

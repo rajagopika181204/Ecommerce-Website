@@ -85,62 +85,62 @@ const BillingPage = () => {
   return (
     <div className="min-h-screen bg-pink-50 py-10">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-center text-3xl font-bold text-pink-600 mb-6">
+        <h1 className="text-center text-3xl font-bold text-pink-700 mb-6">
           Billing Details <FaFileInvoice className="inline-block ml-2" />
         </h1>
 
         {/* Order Details */}
         <div className="bg-pink-100 p-5 rounded-lg shadow-md mb-6">
-          <h2 className="text-pink-600 font-bold text-lg mb-3">Order Details:</h2>
+          <h2 className="text-pink-700 font-bold text-lg mb-3">Order Details:</h2>
           <p>
-            <FaShoppingCart className="inline-block text-pink-500 mr-2" />
+            <FaShoppingCart className="inline-block text-pink-700 mr-2" />
             <strong>Order ID:</strong> {orderId || "N/A"}
           </p>
           <p>
-            <FaCheckCircle className="inline-block text-pink-500 mr-2" />
+            <FaCheckCircle className="inline-block text-pink-700 mr-2" />
             <strong>Tracking ID:</strong> {trackingId || "N/A"}
           </p>
           <p>
-            <FaCheckCircle className="inline-block text-pink-500 mr-2" />
+            <FaCheckCircle className="inline-block text-pink-700 mr-2" />
             <strong>Transaction ID:</strong> {transactionId || "N/A"}
           </p>
           <p>
-            <FaCheckCircle className="inline-block text-pink-500 mr-2" />
-            <strong>Payment Method:</strong> {paymentMethod || "N/A"}
+            <FaCheckCircle className="inline-block text-pink-700 mr-2" />
+            <strong>Payment Method:</strong> {paymentMethod || "NULL"}
           </p>
         </div>
 
         {/* Shipping Details */}
         <div className="bg-pink-100 p-5 rounded-lg shadow-md mb-6">
-          <h2 className="text-pink-600 font-bold text-lg mb-3">
+          <h2 className="text-pink-700 font-bold text-lg mb-3">
             Shipping Details:
           </h2>
           <p>
-            <FaUser className="inline-block text-pink-500 mr-2" />
+            <FaUser className="inline-block text-pink-700 mr-2" />
             {userDetails?.name || "N/A"}
           </p>
           <p>
-            <FaMapMarkerAlt className="inline-block text-pink-500 mr-2" />
+            <FaMapMarkerAlt className="inline-block text-pink-700 mr-2" />
             {userDetails?.address || "N/A"}, {userDetails?.city || "N/A"}
           </p>
           <p>
-            <FaEnvelope className="inline-block text-pink-500 mr-2" />
+            <FaEnvelope className="inline-block text-pink-700 mr-2" />
             {userDetails?.email || "N/A"}
           </p>
           <p>
-            <FaPhone className="inline-block text-pink-500 mr-2" />
+            <FaPhone className="inline-block text-pink-700 mr-2" />
             {userDetails?.phone || "N/A"}
           </p>
         </div>
 
         {/* Order Items */}
         <div className="bg-pink-100 p-5 rounded-lg shadow-md mb-6">
-          <h2 className="text-pink-600 font-bold text-lg mb-3">Order Items:</h2>
+          <h2 className="text-pink-700 font-bold text-lg mb-3">Order Items:</h2>
           {items?.length > 0 ? (
             <ul>
               {items.map((item, index) => (
                 <li key={index} className="mb-2">
-                  <FaCheckCircle className="inline-block text-pink-500 mr-2" />
+                  <FaCheckCircle className="inline-block text-pink-700 mr-2" />
                   {item.product.name} (x{item.quantity}) — ₹
                   {item.quantity * item.product.price}
                 </li>
@@ -152,20 +152,20 @@ const BillingPage = () => {
         </div>
 
         <h3 className="text-center text-xl font-bold text-gray-800 mb-6">
-          Total Amount: <span className="text-pink-500">₹{total || 0}</span>
+          Total Amount: <span className="text-pink-700">₹{total || 0}</span>
         </h3>
 
         {/* Buttons */}
         <div className="flex justify-between">
           <button
-            className="bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition duration-300"
+            className="bg-pink-700 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition duration-300"
             onClick={generateInvoice}
           >
             <FaFilePdf className="inline-block mr-2" />
             Download Invoice
           </button>
           <button
-            className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-300"
+            className="bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-300"
             onClick={() => navigate("/")}
           >
             <FaArrowLeft className="inline-block mr-2" />

@@ -51,7 +51,7 @@ function Signup() {
       <div className="bg-white shadow-2xl rounded-2xl w-full max-w-lg p-10">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-extrabold text-pink-500">
+          <h1 className="text-4xl font-extrabold text-pink-700">
             <FaUserAlt className="inline-block mb-1 mr-2" /> TechGadget Store
           </h1>
           <p className="text-lg text-gray-600 mt-3">Create a new account today!</p>
@@ -71,7 +71,7 @@ function Signup() {
               Username
             </label>
             <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg focus-within:ring-4 focus-within:ring-pink-300">
-              <FaUserAlt className="text-pink-500 mx-4 text-xl" />
+              <FaUserAlt className="text-pink-700 mx-4 text-xl" />
               <input
                 id="username"
                 type="text"
@@ -94,7 +94,7 @@ function Signup() {
               Email
             </label>
             <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg focus-within:ring-4 focus-within:ring-pink-300">
-              <FaEnvelope className="text-pink-500 mx-4 text-xl" />
+              <FaEnvelope className="text-pink-700 mx-4 text-xl" />
               <input
                 id="email"
                 type="email"
@@ -117,7 +117,7 @@ function Signup() {
               Password
             </label>
             <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg focus-within:ring-4 focus-within:ring-pink-300">
-              <FaLock className="text-pink-500 mx-4 text-xl" />
+              <FaLock className="text-pink-700 mx-4 text-xl" />
               <input
                 id="password"
                 type="password"
@@ -134,7 +134,7 @@ function Signup() {
           {/* Signup Button */}
           <button
             type="submit"
-            className="w-full py-4 text-xl bg-gradient-to-r from-pink-500 to-pink-600 text-white font-bold rounded-full hover:shadow-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-300"
+            className="w-full py-4 text-xl bg-gradient-to-r from-pink-600 to-pink-700 text-white font-bold rounded-full hover:shadow-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-300"
           >
             Signup
           </button>
@@ -146,7 +146,7 @@ function Signup() {
             Already have an account?{" "}
             <Link
               to="/login"
-              className="text-pink-500 font-bold hover:underline"
+              className="text-pink-700 font-bold hover:underline"
             >
               Login
             </Link>

@@ -4,9 +4,9 @@ import { FaHome, FaInfoCircle, FaTh, FaPhone } from "react-icons/fa";
 
 function AboutPage() {
   return (
-    <>
+    <div className="font-sans bg-gradient-to-r from-pink-50 via-white to-pink-50 min-h-screen">
       {/* Navbar */}
-      <nav className="bg-pink-500 text-white py-4 px-6 flex justify-between items-center shadow-md sticky top-0 z-50">
+      <nav className="bg-pink-700 text-white py-4 px-6 flex justify-between items-center shadow-md sticky top-0 z-50">
         <div className="text-xl font-bold">
           <Link to="/" className="hover:text-gray-200 transition duration-200">
             Tech Gadgets Store
@@ -41,9 +41,9 @@ function AboutPage() {
       </nav>
 
       {/* About Content */}
-      <div className="bg-pink-50 min-h-screen py-10">
+      <div className="py-10 px-6">
         <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-          <h1 className="text-center text-3xl font-bold text-pink-600 mb-6">
+          <h1 className="text-center text-4xl font-bold text-pink-700 mb-6">
             About Us
           </h1>
           <p className="text-lg text-gray-700 leading-relaxed mb-6">
@@ -55,9 +55,9 @@ function AboutPage() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <img
-              src="/images/about-us.jpg"
+              src="/images/aboutus.jpg"
               alt="About Tech Gadgets Store"
-              className="rounded-lg shadow-md"
+              className="rounded-lg shadow-md w-full object-cover"
             />
             <div className="flex flex-col justify-center">
               <p className="text-lg text-gray-700 leading-relaxed">
@@ -84,7 +84,12 @@ function AboutPage() {
           </p>
         </div>
       </div>
-    </>
+
+      {/* Footer */}
+      <footer className="bg-pink-700 text-white text-center py-4">
+        <p>© 2025 Tech Gadgets Store. All rights reserved.</p>
+      </footer>
+    </div>
   );
 }
 

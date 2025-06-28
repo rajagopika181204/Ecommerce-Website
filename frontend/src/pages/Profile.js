@@ -52,7 +52,7 @@ const Profile = () => {
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="text-gray-500 hover:text-pink-500 transition duration-200 text-2xl"
+            className="text-gray-500 hover:text-pink-700 transition duration-200 text-2xl"
             aria-label="Go Back"
           >
             <FaArrowLeft />
@@ -61,7 +61,7 @@ const Profile = () => {
         </div>
 
         {/* User Information */}
-        <div className="relative bg-gradient-to-r from-pink-400 via-pink-300 to-pink-500 p-8 rounded-2xl shadow-lg text-white mb-10">
+        <div className="relative bg-gradient-to-r from-pink-700 via-pink-400 to-pink-700 p-8 rounded-2xl shadow-lg text-white mb-10">
           <div className="flex items-center space-x-6">
             {/* User Icon */}
             <FaUserCircle className="text-9xl text-white shadow-lg" />
@@ -72,7 +72,7 @@ const Profile = () => {
           </div>
           <button
             onClick={handleLogout}
-            className="mt-6 bg-white text-pink-500 py-2 px-6 rounded-lg shadow-md hover:bg-gray-200 transition"
+            className="mt-6 bg-white text-pink-700 py-2 px-6 rounded-lg shadow-md hover:bg-gray-200 transition"
           >
             <FaSignOutAlt className="inline-block mr-2" />
             Logout
@@ -81,7 +81,7 @@ const Profile = () => {
 
         {/* Order History */}
         <h2 className="text-2xl font-semibold text-gray-800 flex items-center mb-6">
-          <FaBoxOpen className="mr-3 text-pink-500" />
+          <FaBoxOpen className="mr-3 text-pink-700" />
           Order History
         </h2>
         <div className="grid gap-6">

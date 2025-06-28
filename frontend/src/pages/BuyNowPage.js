@@ -20,7 +20,7 @@ const Navbar = ({ onBack }) => {
   const navigate = useNavigate();
 
   return (
-    <nav className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-4 px-6 shadow-md flex justify-between items-center">
+    <nav className="bg-gradient-to-r from-pink-600 to-pink-700 text-white py-4 px-6 shadow-md flex justify-between items-center">
       <div className="flex items-center">
         {onBack && (
           <button
@@ -277,6 +277,7 @@ const BuyNowPage = () => {
 
   return (
     <>
+    <div className="font-sans bg-pink-50 min-h-screen pb-12">
       <Navbar onBack={() => navigate(-1)} />
         <ToastContainer />
       <div className="py-10 px-6 max-w-4xl mx-auto">
@@ -426,6 +427,7 @@ const BuyNowPage = () => {
         >
           Place Order
         </button>
+      </div>
       </div>
     </>
   );

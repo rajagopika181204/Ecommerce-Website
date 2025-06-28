@@ -30,18 +30,18 @@ const Wishlist = () => {
   );
 
   return (
-    <div className="font-sans bg-pink-50 min-h-screen">
+    <div className="font-sans bg-gradient-to-r from-pink-50 via-white to-pink-50 min-h-screen">
       {/* Navbar */}
-      <header className="bg-pink-500 shadow-md py-4 px-6 flex justify-between items-center">
+      <header className="bg-pink-700 shadow-md py-4 px-6 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <Link to="/">
             <img
               src="/images/logo.jpeg"
               alt="Tech Gadgets Store"
-              className="w-12 h-12 rounded-full"
+              className="w-14 h-14 rounded-full border-2 border-white"
             />
           </Link>
-          <h1 className="text-xl font-bold text-white">Tech Gadgets Store</h1>
+          <h1 className="text-2xl font-bold text-white">Tech Gadgets Store</h1>
         </div>
         <nav className="flex gap-6">
           <Link
@@ -68,32 +68,32 @@ const Wishlist = () => {
       {/* Wishlist Section */}
       <main className="py-10 px-6">
         <center>
-          <h2 className="text-4xl font-bold text-pink-600 mb-8">
+          <h2 className="text-5xl font-extrabold text-pink-700 mb-8">
             Your Wishlist
           </h2>
         </center>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
           {wishlistProducts.length > 0 ? (
             wishlistProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition duration-300"
+                className="bg-white shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transform hover:scale-105 transition duration-300"
               >
                 <img
                   src={`http://localhost:3000/images/${product.image_url}`}
                   alt={product.name}
-                  className="w-full h-60 object-cover cursor-pointer"
+                  className="w-full h-64 object-cover cursor-pointer"
                   onClick={() => navigate(`/products/${product.id}`)}
                 />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800">
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-800">
                     {product.name}
                   </h3>
-                  <p className="text-pink-600 font-bold text-lg mt-2">
+                  <p className="text-pink-700 font-bold text-lg mt-3">
                     ₹{product.price}
                   </p>
                   <button
-                    className="mt-4 w-full bg-pink-500 text-white py-2 rounded-md flex justify-center items-center gap-2 hover:bg-pink-600 transition duration-200"
+                    className="mt-6 w-full bg-pink-700 text-white py-2 rounded-lg flex justify-center items-center gap-2 hover:bg-pink-600 transition duration-200"
                     onClick={() => removeFromWishlist(product.id)}
                   >
                     <FaTrashAlt /> Remove
@@ -110,26 +110,26 @@ const Wishlist = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white shadow-md py-6 text-center mt-10">
-        <p className="text-gray-600">
+      <footer className="bg-pink-700 shadow-md py-8 text-center mt-10">
+        <p className="text-white text-lg font-semibold">
           © 2025 Tech Gadgets Store. All rights reserved.
         </p>
-        <div className="mt-2 flex justify-center gap-4">
+        <div className="mt-4 flex justify-center gap-6">
           <Link
             to="/"
-            className="text-pink-600 hover:text-pink-800 transition duration-200"
+            className="text-white hover:underline transition duration-200"
           >
             Home
           </Link>
           <Link
             to="/about"
-            className="text-pink-600 hover:text-pink-800 transition duration-200"
+            className="text-white hover:underline transition duration-200"
           >
             About
           </Link>
           <Link
             to="/contact"
-            className="text-pink-600 hover:text-pink-800 transition duration-200"
+            className="text-white hover:underline transition duration-200"
           >
             Contact
           </Link>
