@@ -1,11 +1,14 @@
-import React, { useEffect, useState ,useContext} from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { FaHeart, FaRegHeart, FaSearch, FaUser } from "react-icons/fa";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import "./ProductList.css";
-import { FaShoppingCart } from "react-icons/fa";
-import { UserContext } from '../context/UserContext';
+import {
+  FaHeart,
+  FaRegHeart,
+  FaSearch,
+  FaUser,
+  FaShoppingCart,
+} from "react-icons/fa";
+import { UserContext } from "../context/UserContext";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -15,7 +18,7 @@ function ProductList() {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const { user } = useContext(UserContext);
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -39,126 +42,116 @@ function ProductList() {
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-   // Navigate to login if not logged in
+
   return (
-    <div>
+    <div className="font-sans bg-pink-50 min-h-screen pb-12">
       {/* Navbar */}
-      <div className="navbar">
-        <div className="navbar-brand">
+      <div className="bg-pink-700 text-white flex justify-between items-center px-6 py-4 shadow-md">
+        <div className="flex items-center">
           <img
             src="/images/logo.jpeg"
             alt="Tech Gadgets Store"
-            className="navbar-logo-circle"
+            className="w-12 h-12 rounded-full mr-3"
           />
-          <span className="navbar-title">Tech Gadgets Store</span>
+          <span className="text-2xl font-bold tracking-wide">Tech Gadgets Store</span>
         </div>
-        <nav className="navbar-links">
-          <Link to="/about">About</Link>
-          <Link to="/products">Products</Link>
-          <Link to="/wishlist">Wishlist ❤️</Link>
-          <Link to="/cart">Cart <FaShoppingCart /></Link>
+        <nav className="flex space-x-6 text-lg font-medium">
+          <Link to="/about" className="hover:text-pink-200">About</Link>
+          <Link to="/products" className="hover:text-pink-200">Products</Link>
+          <Link to="/wishlist" className="hover:text-pink-200">
+            Wishlist ❤️
+          </Link>
+          <Link to="/cart" className="hover:text-pink-200 flex items-center">
+            Cart <FaShoppingCart className="ml-1" />
+          </Link>
           {user ? (
-            <>
-              <Link to="/profile">My Profile<FaUser/></Link>
-            </>
+            <Link to="/profile" className="hover:text-pink-200 flex items-center">
+              My Profile <FaUser className="ml-1" />
+            </Link>
           ) : (
-            <Link to="/login">Login</Link>
+            <Link to="/login" className="hover:text-pink-200">Login</Link>
           )}
         </nav>
       </div>
+      
+      {/* Accessible Marquee */}
+        <div className="animate-marquee text-xl sm:text-2xl md:text-3xl my-3 font-bold text-pink-700">
+       🎉 Limited Time Offer! Get up to 50% off on selected gadgets. Shop now and save big! 🎉
+        </div>
 
-     <div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    position: "relative",
-    width: "100%",
-    maxWidth: "400px",
-    margin: "0 auto",
-  }}
->
-  <FaSearch
-    style={{
-      position: "absolute",
-      left: "10px",
-      color: "#888",
-      fontSize: "20px",
-    }}
-  />
-  <input
-    type="text"
-    placeholder="Search for products, brands, and more..."
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    style={{
-      width: "100%",
-      padding: "10px 10px 10px 35px", // Add left padding to accommodate the icon
-      fontSize: "16px",
-      border: "1px solid #ccc",
-      borderRadius: "5px",
-      outline: "none",
-      color: "black",
-      backgroundColor: "#fff",
-      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-    }}
-  />
-</div>
-
+      {/* Search Bar */}
+      <div className="flex items-center justify-center my-6">
+        <div className="relative w-full max-w-lg">
+          <FaSearch className="absolute left-3 top-3 text-gray-400 text-lg" />
+          <input
+            type="text"
+            placeholder="Search for products, brands, and more..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border rounded-lg shadow-md focus:outline-none focus:ring focus:ring-pink-300"
+          />
+        </div>
+      </div>
 
       {/* Shop Section */}
-      <div className="shop-section">
-        <h1>Explore Our Latest Tech Gadgets!</h1>
-        <div className="product-grid">
+      <div className="flex-1 px-6">
+        <h1 className="text-center text-4xl font-bold text-pink-700 mb-8">
+          Explore Our Latest Tech Gadgets!
+        </h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className="product-card"
-                style={{ cursor: "pointer" }}
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 relative"
               >
                 <img
                   src={`http://localhost:3000/images/${product.image_url}`}
                   alt={product.name}
-                  className="product-image"
-                  onClick={() => Navigate(`/products/${product.id}`)}
+                  className="w-full h-48 object-contain rounded-md cursor-pointer mb-4"
+                  onClick={() => navigate(`/products/${product.id}`)}
                 />
-                <div className="product-info">
-                  <div className="product-details">
-                    <h3>{product.name}</h3>
-                  </div>
-                  <div className="price-wishlist">
-                    <p className="price">₹{product.price}</p>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-xl font-semibold text-green-600">
+                      ₹{product.price}
+                    </p>
                     <button
-                      className="wishlist-button"
                       onClick={() => toggleWishlist(product.id)}
+                      className="text-red-500 text-xl"
                     >
                       {wishlist.includes(product.id) ? (
-                        <FaHeart className="wishlist-icon active" />
+                        <FaHeart />
                       ) : (
-                        <FaRegHeart className="wishlist-icon" />
+                        <FaRegHeart />
                       )}
                     </button>
                   </div>
-                  <Link to={`/products/${product.id}`} className="shop-now">
+                  <Link
+                    to={`/products/${product.id}`}
+                    className="block text-center bg-pink-700 text-white py-2 mt-4 rounded-md hover:bg-pink-700 transition-colors"
+                  >
                     Shop Now
                   </Link>
                 </div>
               </div>
             ))
           ) : (
-            <div className="noproduct">
-              <center>No products found matching your search !</center>
-            </div>
+            <p className="text-center text-gray-500 text-xl">
+              No products found matching your search!
+            </p>
           )}
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="footer">
-        <p>© 2025 Tech Gadgets Store. All rights reserved.</p>
-        <div>
-          <Link to="/">Home</Link> | <Link to="/about">About</Link> |{" "}
-          <Link to="/contact">Contact</Link>
+      <footer className="bg-pink-700 text-white text-center py-4 mt-20">
+        <p className="font-medium">© 2025 Tech Gadgets Store. All rights reserved.</p>
+        <div className="mt-2 space-x-4">
+          <Link to="/" className="hover:text-pink-200">Home</Link>
+          <Link to="/about" className="hover:text-pink-200">About</Link>
+          <Link to="/contact" className="hover:text-pink-200">Contact</Link>
         </div>
       </footer>
     </div>

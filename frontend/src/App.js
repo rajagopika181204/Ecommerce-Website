@@ -12,7 +12,6 @@ import BillingPage from "./pages/BillingPage";
 import AboutPage from "./pages/About";
 import Wishlist from "./pages/Wishlist";
 import Profile from "./pages/Profile.js";
-import AddAddressPage from "./pages/AddAddressPage.js";
 function AppWrapper() {
   return (
     <>
@@ -29,8 +28,7 @@ function AppWrapper() {
         <Route path="/billing" element={<BillingPage />} />
         <Route path="/About" element={<AboutPage/>} />
         <Route path="/Wishlist" element={<Wishlist/>} />
-         <Route path="/profile" element={<Profile />} />   
-        <Route path="/add-address" element={<AddAddressPage />} />
+        <Route path="/profile" element={<Profile />} />   
       </Routes>
     </>
   );

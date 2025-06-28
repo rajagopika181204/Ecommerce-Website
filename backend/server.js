@@ -11,10 +11,11 @@ const app = express();
 const PORT = 5000;
 const JWT_SECRET = '123!@#';
 
-// Middleware
+// Middlewares
 app.use(cors({
   origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'OPTIONS']
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true
 }));// Adjust for production
 app.use(express.json());
 app.use('/images', express.static('images')); // Serving static images
@@ -113,7 +114,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
+ 
 // Fetch Products Route
 app.get('/products', async (req, res) => {
   const conn = await connectDB();
@@ -408,49 +409,57 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 // GET All Addresses
-app.get("/api/get-addresses", async (req, res) => {
+app.get('/api/address/:email', async (req, res) => {
+  const { email } = req.params;
+  const connection = await connectDB();
+  
   try {
-    const connection = await connectDB();
-    const [rows] = await connection.execute("SELECT * FROM user_addresses");
-    connection.end();
+    const [result] = await connection.execute(
+      `SELECT * FROM user_addresses WHERE email = ?`,
+      [email]
+    );
 
-    if (rows.length > 0) {
-      res.json({ success: true, addresses: rows });
-    } else {
-      res.json({ success: false, message: "No addresses found." });
-    }
+    // Return the MOST RECENT address (assuming multiple entries are possible)
+    const latestAddress = result[result.length - 1]; 
+    res.status(200).json({ success: true, address: latestAddress });
   } catch (error) {
-    console.error("Error fetching addresses:", error.message);
-    res.status(500).json({ success: false, message: "Internal server error." });
+    res.status(500).json({ success: false, message: "Failed to fetch address" });
+  } finally {
+    connection.end();
   }
 });
 
 app.post('/api/save-address', async (req, res) => {
   const { name, address, city, email, pincode, phone } = req.body;
-
-  // Validate the input fields
-  if (!name || !address || !city || !email || !pincode || !phone) {
-    return res.status(400).json({ success: false, message: 'All fields are required.' });
-  }
+  const connection = await connectDB();
 
   try {
-    const connection = await connectDB();
-
-    // Insert a new address into the database
+    // Insert or update the address
     await connection.execute(
-      `INSERT INTO user_addresses (name, address, city, email, pincode, phone) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO user_addresses (name, address, city, email, pincode, phone)
+       VALUES (?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         name = VALUES(name),
+         address = VALUES(address),
+         city = VALUES(city),
+         pincode = VALUES(pincode),
+         phone = VALUES(phone)`,
       [name, address, city, email, pincode, phone]
     );
 
-    connection.end();
-    res.json({ success: true, message: 'Address saved successfully.' });
+    // Fetch and return the saved address
+    const [savedAddress] = await connection.execute(
+      `SELECT * FROM user_addresses WHERE email = ?`,
+      [email]
+    );
+
+    res.json({ success: true, address: savedAddress[0] });
   } catch (error) {
-    console.error('Error saving address:', error.message);
-    res.status(500).json({ success: false, message: 'Internal server error.' });
+    res.status(500).json({ success: false, message: "Failed to save address." });
+  } finally {
+    connection.end();
   }
 });
-
 
 // Delete Address
 app.delete("/api/delete-address/:id", async (req, res) => {
@@ -463,6 +472,57 @@ app.delete("/api/delete-address/:id", async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+const Razorpay = require("razorpay");
+
+const razorpay = new Razorpay({
+  key_id: "rzp_test_EH1UEwLILEPXCj", // Replace with your actual Razorpay key_id
+  key_secret: "ppM7JhyVpBtycmMcFGxYdacw", // Replace with your Razorpay key_secret
+});
+
+app.post("/api/create-order", async (req, res) => {
+  const { amount, currency = "INR", receipt } = req.body;
+  try {
+    const options = {
+      amount: amount * 100, // Razorpay expects amount in paise
+      currency,
+      receipt,
+    };
+    const order = await razorpay.orders.create(options);
+    res.json({ success: true, order });
+  } catch (error) {
+    console.error("Razorpay Error:", error);
+    res.status(500).json({ success: false, message: "Failed to create order", error });
+  }
+});
+
+// Endpoint to verify Razorpay payment
+app.post("/api/verify-payment", (req, res) => {
+  const { paymentId, orderId, signature } = req.body;
+
+  if (!paymentId || !orderId || !signature) {
+    return res.status(400).json({ success: false, message: "Invalid payment details" });
+  }
+
+  try {
+    const generatedSignature = crypto
+      .createHmac("sha256", razorpay.key_secret)
+      .update(`${orderId}|${paymentId}`)
+      .digest("hex");
+
+    if (generatedSignature === signature) {
+      // Payment is verified successfully
+      res.status(200).json({ success: true, message: "Payment verified successfully" });
+    } else {
+      res.status(400).json({ success: false, message: "Payment verification failed" });
+    }
+  } catch (err) {
+    console.error("Verification error:", err);
+    res.status(500).json({ success: false, message: "Failed to verify payment" });
+  }
+});
+
+
 // Start the Server
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);

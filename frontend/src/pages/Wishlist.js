@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaHome, FaShoppingCart, FaTrashAlt } from "react-icons/fa";
 import axios from "axios";
-import "./Wishlist.css";
 
-function Wishlist() {
+const Wishlist = () => {
   const [products, setProducts] = useState([]);
   const [wishlist, setWishlist] = useState(() => {
-    // Retrieve wishlist from localStorage
     const savedWishlist = localStorage.getItem("wishlist");
     return savedWishlist ? JSON.parse(savedWishlist) : [];
   });
 
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch all products from API
     axios
       .get("http://localhost:5000/products")
       .then((res) => setProducts(res.data))
@@ -23,7 +20,6 @@ function Wishlist() {
   }, []);
 
   const removeFromWishlist = (productId) => {
-    // Update the wishlist state and localStorage
     const updatedWishlist = wishlist.filter((id) => id !== productId);
     setWishlist(updatedWishlist);
     localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
@@ -34,43 +30,70 @@ function Wishlist() {
   );
 
   return (
-    <div>
-      <header className="navbar">
-        <div className="navbar-brand">
+    <div className="font-sans bg-pink-50 min-h-screen">
+      {/* Navbar */}
+      <header className="bg-pink-500 shadow-md py-4 px-6 flex justify-between items-center">
+        <div className="flex items-center gap-3">
           <Link to="/">
             <img
               src="/images/logo.jpeg"
               alt="Tech Gadgets Store"
-              className="navbar-logo-circle"
+              className="w-12 h-12 rounded-full"
             />
           </Link>
-          <span className="navbar-title">Tech Gadgets Store</span>
+          <h1 className="text-xl font-bold text-white">Tech Gadgets Store</h1>
         </div>
-        <nav className="navbar-links">
-          <Link to="/about">About</Link>
-          <Link to="/products">Home</Link>
-          <Link to="/cart">Cart 🛒</Link>
+        <nav className="flex gap-6">
+          <Link
+            to="/about"
+            className="text-white text-lg font-semibold hover:text-gray-200 transition duration-200"
+          >
+            About
+          </Link>
+          <Link
+            to="/products"
+            className="text-white text-lg font-semibold hover:text-gray-200 transition duration-200 flex items-center gap-2"
+          >
+            <FaHome /> Home
+          </Link>
+          <Link
+            to="/cart"
+            className="text-white text-lg font-semibold hover:text-gray-200 transition duration-200 flex items-center gap-2"
+          >
+            <FaShoppingCart /> Cart
+          </Link>
         </nav>
       </header>
 
-      <main className="wishlist-section">
-        <center><h1 className="h1">Your Wishlist</h1></center>
-        <div className="wishlist-grid">
+      {/* Wishlist Section */}
+      <main className="py-10 px-6">
+        <center>
+          <h2 className="text-4xl font-bold text-pink-600 mb-8">
+            Your Wishlist
+          </h2>
+        </center>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {wishlistProducts.length > 0 ? (
             wishlistProducts.map((product) => (
-              <div key={product.id} className="wishlist-card">
+              <div
+                key={product.id}
+                className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition duration-300"
+              >
                 <img
                   src={`http://localhost:3000/images/${product.image_url}`}
                   alt={product.name}
-                  className="wishlist-image"
-                  onClick={() => Navigate(`/products/${product.id}`)}
+                  className="w-full h-60 object-cover cursor-pointer"
+                  onClick={() => navigate(`/products/${product.id}`)}
                 />
-                <div className="wishlist-info">
-                  <h3>{product.name}</h3>
-                  <p className="price">₹{product.price}</p>
-                  <br/>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-800">
+                    {product.name}
+                  </h3>
+                  <p className="text-pink-600 font-bold text-lg mt-2">
+                    ₹{product.price}
+                  </p>
                   <button
-                    className="remove-button"
+                    className="mt-4 w-full bg-pink-500 text-white py-2 rounded-md flex justify-center items-center gap-2 hover:bg-pink-600 transition duration-200"
                     onClick={() => removeFromWishlist(product.id)}
                   >
                     <FaTrashAlt /> Remove
@@ -79,20 +102,41 @@ function Wishlist() {
               </div>
             ))
           ) : (
-            <p>Your wishlist is empty. Start adding items!</p>
+            <p className="text-center text-gray-600 text-lg col-span-full">
+              Your wishlist is empty. Start adding items!
+            </p>
           )}
         </div>
       </main>
 
-      <footer className="footer">
-        <p>© 2025 Tech Gadgets Store. All rights reserved.</p>
-        <div>
-          <Link to="/">Home</Link> | <Link to="/about">About</Link> |{" "}
-          <Link to="/contact">Contact</Link>
+      {/* Footer */}
+      <footer className="bg-white shadow-md py-6 text-center mt-10">
+        <p className="text-gray-600">
+          © 2025 Tech Gadgets Store. All rights reserved.
+        </p>
+        <div className="mt-2 flex justify-center gap-4">
+          <Link
+            to="/"
+            className="text-pink-600 hover:text-pink-800 transition duration-200"
+          >
+            Home
+          </Link>
+          <Link
+            to="/about"
+            className="text-pink-600 hover:text-pink-800 transition duration-200"
+          >
+            About
+          </Link>
+          <Link
+            to="/contact"
+            className="text-pink-600 hover:text-pink-800 transition duration-200"
+          >
+            Contact
+          </Link>
         </div>
       </footer>
     </div>
   );
-}
+};
 
 export default Wishlist;

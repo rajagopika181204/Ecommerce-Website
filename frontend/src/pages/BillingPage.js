@@ -29,238 +29,149 @@ const BillingPage = () => {
   } = location.state || {};
 
   const generateInvoice = () => {
-  const doc = new jsPDF();
+    const doc = new jsPDF();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("Tech Gadgets Store", 105, 20, { align: "center" });
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Your Trusted Electronics Partner", 105, 30, { align: "center" });
+    doc.line(20, 35, 190, 35);
 
-  // Header Section
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.text("Tech Gadgets Store", 105, 20, { align: "center" });
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
-  doc.text("Your Trusted Electronics Partner", 105, 30, { align: "center" });
-  doc.setDrawColor(0);
-  doc.setLineWidth(0.5);
-  doc.line(20, 35, 190, 35); // Draw border under header
+    doc.setFontSize(16);
+    doc.text("Invoice", 20, 45);
+    doc.setFontSize(12);
+    doc.text(`Order ID: ${orderId}`, 20, 55);
+    doc.text(`Tracking ID: ${trackingId}`, 20, 65);
+    doc.text(`Transaction ID: ${transactionId}`, 20, 75);
+    doc.text(`Payment Method: ${paymentMethod}`, 20, 85);
 
-  // Invoice Title and Order Info
-  doc.setFontSize(16);
-  doc.text("Invoice", 20, 45);
-  doc.setFontSize(12);
-  doc.text(`Order ID: ${orderId}`, 20, 55);
-  doc.text(`Tracking ID: ${trackingId}`, 20, 65);
-  doc.text(`Transaction ID: ${transactionId}`, 20, 75);
-  doc.text(`Payment Method: ${paymentMethod}`, 20, 85);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Customer Details", 20, 100);
+    doc.setFontSize(12);
+    doc.text(`Name: ${userDetails?.name || "N/A"}`, 20, 110);
+    doc.text(`Address: ${userDetails?.address || "N/A"}`, 20, 120);
+    doc.text(`City: ${userDetails?.city || "N/A"}`, 20, 130);
+    doc.text(`Email: ${userDetails?.email || "N/A"}`, 20, 140);
+    doc.text(`Phone: ${userDetails?.phone || "N/A"}`, 20, 150);
 
-  // Customer Details
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.text("Customer Details", 20, 100);
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Name: ${userDetails?.name || "N/A"}`, 20, 110);
-  doc.text(`Address: ${userDetails?.address || "N/A"}`, 20, 120);
-  doc.text(`City: ${userDetails?.city || "N/A"}`, 20, 130);
-  doc.text(`Email: ${userDetails?.email || "N/A"}`, 20, 140);
-  doc.text(`Phone: ${userDetails?.phone || "N/A"}`, 20, 150);
+    doc.text("Order Items", 20, 165);
+    autoTable(doc, {
+      startY: 170,
+      head: [["Product Name", "Quantity", "Price", "Total"]],
+      body: items.map((item) => [
+        item.product.name,
+        item.quantity,
+        item.product.price,
+        item.quantity * item.product.price,
+      ]),
+      theme: "grid",
+      headStyles: { fillColor: [240, 128, 128] },
+    });
 
-  // Order Items Table
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.text("Order Items", 20, 165);
-  autoTable(doc, {
-    startY: 170,
-    head: [["Product Name", "Quantity", "Price", "Total"]],
-    body: items.map((item) => [
-      item.product.name,
-      item.quantity,
-      item.product.price,
-      item.quantity * item.product.price,
-    ]),
-    theme: "grid", // Adds borders for a professional look
-    styles: { halign: "center" },
-    headStyles: { fillColor: [60, 179, 113] }, // Green header background
-  });
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.text(`Total Amount: ${total || 0}`, 20, finalY);
 
-  // Total Section
-  const finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(14);
-  doc.text(`Total Amount: ${total || 0}`, 20, finalY);
+    doc.setFontSize(10);
+    doc.text("Thank you for shopping with Tech Gadgets Store!", 105, 290, {
+      align: "center",
+    });
 
-  // Footer Section
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "italic");
-  doc.text("Thank you for shopping with Tech Gadgets Store!", 105, 290, { align: "center" });
-
-  // Save PDF
-  doc.save(`Invoice_Order_${orderId}.pdf`);
-};
-
+    doc.save(`Invoice_Order_${orderId}.pdf`);
+  };
 
   return (
-    <div
-      style={{
-        fontFamily: "Arial, sans-serif",
-        maxWidth: "1000px",
-        margin: "30px auto",
-        padding: "50px",
-        backgroundColor: "#f9f9f9",
-        borderRadius: "10px",
-        boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-        border: "1px solid #ddd",
-      }}
-    >
-      <h1
-        style={{
-          color: "#333",
-          textAlign: "center",
-          marginBottom: "20px",
-          fontSize: "34px",
-          fontWeight: "bold",
-        }}
-      >
-        Billing Details <FaFileInvoice style={{ marginLeft: "10px" }} />
-      </h1>
+    <div className="min-h-screen bg-pink-50 py-10">
+      <div className="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h1 className="text-center text-3xl font-bold text-pink-600 mb-6">
+          Billing Details <FaFileInvoice className="inline-block ml-2" />
+        </h1>
 
-      {/* Order Details Section */}
-      <div
-        style={{
-          padding: "20px",
-          backgroundColor: "#ffffff",
-          borderRadius: "10px",
-          marginBottom: "20px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-          border: "1px solid #ddd",
-        }}
-      >
-        <h2 style={{ color: "#4CAF50", fontSize: "18px", fontWeight: "bold" }}>
-          Order Details:
-        </h2>
-        <p>
-          <FaShoppingCart style={{ marginRight: "5px", color: "#4CAF50" }} />
-          <strong>Order ID:</strong> {orderId || "N/A"}
-        </p>
-        <p>
-          <FaCheckCircle style={{ marginRight: "5px", color: "#4CAF50" }} />
-          <strong>Tracking ID:</strong> {trackingId || "N/A"}
-        </p>
-        <p>
-          <FaCheckCircle style={{ marginRight: "5px", color: "#4CAF50" }} />
-           <strong>Transaction ID:</strong>{" "}
-  {transactionId || "Null"}
-        </p>
-        <p>
-          <FaCheckCircle style={{ marginRight: "5px", color: "#4CAF50" }} />
-          <strong>Payment Method:</strong> {paymentMethod || "N/A"}
-        </p>
-      </div>
+        {/* Order Details */}
+        <div className="bg-pink-100 p-5 rounded-lg shadow-md mb-6">
+          <h2 className="text-pink-600 font-bold text-lg mb-3">Order Details:</h2>
+          <p>
+            <FaShoppingCart className="inline-block text-pink-500 mr-2" />
+            <strong>Order ID:</strong> {orderId || "N/A"}
+          </p>
+          <p>
+            <FaCheckCircle className="inline-block text-pink-500 mr-2" />
+            <strong>Tracking ID:</strong> {trackingId || "N/A"}
+          </p>
+          <p>
+            <FaCheckCircle className="inline-block text-pink-500 mr-2" />
+            <strong>Transaction ID:</strong> {transactionId || "N/A"}
+          </p>
+          <p>
+            <FaCheckCircle className="inline-block text-pink-500 mr-2" />
+            <strong>Payment Method:</strong> {paymentMethod || "N/A"}
+          </p>
+        </div>
 
-      {/* Shipping Details Section */}
-      <div
-        style={{
-          padding: "15px",
-          backgroundColor: "#ffffff",
-          borderRadius: "8px",
-          marginBottom: "20px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-          border: "1px solid #ddd",
-        }}
-      >
-        <h2 style={{ color: "#4CAF50", fontSize: "18px", fontWeight: "bold" }}>
-          Shipping Details:
-        </h2>
-        <p>
-          <FaUser style={{ marginRight: "5px" }}/>
-          {userDetails?.name||"N/A"}
-        </p>
-        <p>
-          <FaMapMarkerAlt style={{ marginRight: "5px" }} />
-          {userDetails?.address || "N/A"}, {userDetails?.city || "N/A"}
-        </p>
-        <p>
-          <FaEnvelope style={{ marginRight: "5px" }} />{" "}
-          {userDetails?.email || "N/A"}
-        </p>
-        <p>
-          <FaPhone style={{ marginRight: "5px" }} /> {userDetails?.phone || "N/A"}
-        </p>
-      </div>
+        {/* Shipping Details */}
+        <div className="bg-pink-100 p-5 rounded-lg shadow-md mb-6">
+          <h2 className="text-pink-600 font-bold text-lg mb-3">
+            Shipping Details:
+          </h2>
+          <p>
+            <FaUser className="inline-block text-pink-500 mr-2" />
+            {userDetails?.name || "N/A"}
+          </p>
+          <p>
+            <FaMapMarkerAlt className="inline-block text-pink-500 mr-2" />
+            {userDetails?.address || "N/A"}, {userDetails?.city || "N/A"}
+          </p>
+          <p>
+            <FaEnvelope className="inline-block text-pink-500 mr-2" />
+            {userDetails?.email || "N/A"}
+          </p>
+          <p>
+            <FaPhone className="inline-block text-pink-500 mr-2" />
+            {userDetails?.phone || "N/A"}
+          </p>
+        </div>
 
-      {/* Order Items Section */}
-      <div
-        style={{
-          padding: "15px",
-          backgroundColor: "#ffffff",
-          borderRadius: "8px",
-          marginBottom: "20px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-          border: "1px solid #ddd",
-        }}
-      >
-        <h2 style={{ color: "#4CAF50", fontSize: "18px", fontWeight: "bold" }}>
-          Order Items:
-        </h2>
-        {items?.length > 0 ? (
-          <ul>
-            {items.map((item, index) => (
-              <li key={index} style={{ marginBottom: "8px" }}>
-                <FaCheckCircle
-                  style={{ color: "#4CAF50", marginRight: "5px" }}
-                />
-                {item.product.name} (x{item.quantity}) — ₹
-                {item.quantity * item.product.price}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No items found.</p>
-        )}
-      </div>
+        {/* Order Items */}
+        <div className="bg-pink-100 p-5 rounded-lg shadow-md mb-6">
+          <h2 className="text-pink-600 font-bold text-lg mb-3">Order Items:</h2>
+          {items?.length > 0 ? (
+            <ul>
+              {items.map((item, index) => (
+                <li key={index} className="mb-2">
+                  <FaCheckCircle className="inline-block text-pink-500 mr-2" />
+                  {item.product.name} (x{item.quantity}) — ₹
+                  {item.quantity * item.product.price}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No items found.</p>
+          )}
+        </div>
 
-      <h3
-        style={{
-          color: "#333",
-          textAlign: "center",
-          marginTop: "20px",
-          fontSize: "20px",
-          fontWeight: "bold",
-        }}
-      >
-        Total Amount: ₹{total || 0}
-      </h3>
+        <h3 className="text-center text-xl font-bold text-gray-800 mb-6">
+          Total Amount: <span className="text-pink-500">₹{total || 0}</span>
+        </h3>
 
-      {/* Download Invoice and Back to Home Buttons */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <button
-          style={{
-            padding: "12px 20px",
-            fontSize: "16px",
-            color: "#fff",
-            backgroundColor: "#4CAF50",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "background-color 0.3s ease",
-          }}
-          onClick={generateInvoice}
-        >
-          <FaFilePdf style={{ marginRight: "5px" }} />Download Invoice
-        </button>&nbsp;&nbsp;
-        <button
-          style={{
-            padding: "12px 20px",
-            fontSize: "16px",
-            color: "#fff",
-            backgroundColor: "#4CAF50",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            transition: "background-color 0.3s ease",
-          }}
-          onClick={() => navigate("/")}
-        >
-          <FaArrowLeft style={{ marginRight: "5px" }} /> Back to Home
-        </button>
+        {/* Buttons */}
+        <div className="flex justify-between">
+          <button
+            className="bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition duration-300"
+            onClick={generateInvoice}
+          >
+            <FaFilePdf className="inline-block mr-2" />
+            Download Invoice
+          </button>
+          <button
+            className="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition duration-300"
+            onClick={() => navigate("/")}
+          >
+            <FaArrowLeft className="inline-block mr-2" />
+            Back to Home
+          </button>
+        </div>
       </div>
     </div>
   );

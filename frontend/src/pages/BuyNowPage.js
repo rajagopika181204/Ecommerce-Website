@@ -1,65 +1,50 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { UserContext } from "../context/UserContext";
 import { QRCodeSVG } from "qrcode.react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   FaRupeeSign,
   FaCreditCard,
   FaQrcode,
   FaShoppingCart,
-  FaUser,
-  FaMobileAlt,
-  FaMoneyBillWave,
   FaPlus,
   FaCheck,
+  FaArrowLeft,
+  FaHome,
 } from "react-icons/fa";
 
-const Navbar = () => {
+const Navbar = ({ onBack }) => {
   const navigate = useNavigate();
 
   return (
-    <nav
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        backgroundColor: "#0288D1",
-        padding: "10px 20px",
-        color: "#fff",
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-      }}
-    >
-      <h1 style={{ fontSize: "24px", fontWeight: "bold" }}>Your Store</h1>
-      <div style={{ display: "flex", gap: "10px" }}>
+    <nav className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-4 px-6 shadow-md flex justify-between items-center">
+      <div className="flex items-center">
+        {onBack && (
+          <button
+            className="text-white text-xl mr-4 hover:text-gray-200"
+            onClick={onBack}
+          >
+            <FaArrowLeft />
+          </button>
+        )}
+        <h1 className="text-2xl font-bold">Tech Gadgets Store</h1>
+      </div>
+      <div className="flex space-x-6">
         <button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            backgroundColor: "transparent",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "16px",
-          }}
+          className="flex items-center gap-2 text-lg hover:text-gray-200"
+          onClick={() => navigate("/")}
+        >
+          <FaHome />
+          Home
+        </button>
+        <button
+          className="flex items-center gap-2 text-lg hover:text-gray-200"
           onClick={() => navigate("/cart")}
         >
           <FaShoppingCart /> Cart
-        </button>
-        <button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            backgroundColor: "transparent",
-            color: "#fff",
-            border: "none",
-            cursor: "pointer",
-            fontSize: "16px",
-          }}
-          onClick={() => navigate("/profile")}
-        >
-          <FaUser /> Profile
         </button>
       </div>
     </nav>
@@ -70,12 +55,13 @@ const BuyNowPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { product, quantity, cartDetails, totalPrice } = location.state || {};
+  const { user } = useContext(UserContext);
 
   const [userDetails, setUserDetails] = useState({
     name: "",
     address: "",
     city: "",
-    email: "",
+    email: user?.email || "",
     pincode: "",
     phone: "",
     paymentMethod: "creditCard",
@@ -91,20 +77,29 @@ const BuyNowPage = () => {
     qrVisible: false,
   });
 
-  // Fetch saved addresses on component mount
   useEffect(() => {
     const fetchAddresses = async () => {
+      if (!user?.email) return;
+
       try {
-        const response = await axios.get("http://localhost:5000/api/get-addresses");
+        const response = await axios.get(
+          `http://localhost:5000/api/address/${user.email}`
+        );
+
         if (response.data.success) {
-          setSavedAddresses(response.data.addresses);
+          setSavedAddresses(
+            Array.isArray(response.data.address)
+              ? response.data.address
+              : [response.data.address]
+          );
         }
       } catch (err) {
         console.error("Error fetching addresses:", err);
       }
     };
+
     fetchAddresses();
-  }, []);
+  }, [user?.email]);
 
   const items = cartDetails || (product ? [{ product, quantity }] : []);
   const calculatedTotal = cartDetails
@@ -121,33 +116,37 @@ const BuyNowPage = () => {
   const handleAddressSelect = (address) => {
     setSelectedAddress(address.id);
     setUserDetails({
+      ...userDetails,
       name: address.name,
       address: address.address,
       city: address.city,
-      email: address.email,
       pincode: address.pincode,
       phone: address.phone,
-      paymentMethod: userDetails.paymentMethod,
     });
   };
 
   const handleSaveNewAddress = async () => {
-  try {
-    const response = await axios.post("http://localhost:5000/api/save-address", userDetails);
-    if (response.data.success) {
-      const updatedResponse = await axios.get("http://localhost:5000/api/get-addresses");
-      if (updatedResponse.data.success) {
-        setSavedAddresses(updatedResponse.data.addresses);
-      }
-      setShowNewAddressForm(false);
-      alert("Address saved successfully!");
+    if (!userDetails.name || !userDetails.address || !userDetails.email) {
+       toast.error("Please fill all required fields!");
+      return;
     }
-  } catch (err) {
-    console.error("Error saving address:", err);
-    alert("Failed to save address. Please try again.");
-  }
-};
 
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/save-address",
+        userDetails
+      );
+
+      if (response.data.success) {
+        setSavedAddresses([response.data.address]);
+        setShowNewAddressForm(false);
+        toast.success("Address saved successfully!");
+      }
+    } catch (err) {
+      console.error("Save error:", err.response?.data || err.message);
+      toast.error(err.response?.data?.message || "Failed to save address.");
+    }
+  };
 
   const handleGenerateUPI = async () => {
     try {
@@ -161,9 +160,10 @@ const BuyNowPage = () => {
         qrData: response.data.qrData,
         qrVisible: false,
       });
+      toast.success("UPI Payment Link Generated!");
     } catch (err) {
       console.error("UPI Generation Error:", err);
-      alert("Failed to generate UPI link. Please try again.");
+      toast.error("Failed to generate UPI link. Please try again.");
     }
   };
 
@@ -176,18 +176,71 @@ const BuyNowPage = () => {
       !userDetails.pincode ||
       !userDetails.phone
     ) {
-      alert("Please fill out all required fields.");
+      toast.error("Please fill out all required fields.");
       return;
     }
 
     if (userDetails.paymentMethod === "upi" && !upiPayment.show) {
-      alert("Please generate UPI Payment before placing the order.");
+      toast.error("Please generate UPI Payment before placing the order.");
       return;
+    }
+    const orderId 
+    
+    = `ORDER_${Date.now()}`;
+    const trackingId = `TRACK_${Date.now()}`;
+    const transactionId = `TXN_${Date.now()}`;
+    if (userDetails.paymentMethod === "razorpay") {
+        const options = {
+          key: "rzp_test_EH1UEwLILEPXCj", // Replace with your Razorpay Key ID
+          amount: calculatedTotal * 100, // Amount in paise
+          currency: "INR",
+          name: "Tech Gadgets Store",
+          description: "Purchase Description",
+
+          handler:() => {
+          navigate("/payment-success", {
+            state: {
+              orderId,
+              trackingId,
+              transactionId,
+              userDetails,
+              items,
+              total: calculatedTotal,
+              paymentMethod: userDetails.paymentMethod,
+            },
+          });
+        },
+          prefill: {
+            name: userDetails.name,
+            email: userDetails.email,
+            contact: userDetails.phone,
+          },
+          theme: {
+            color: "#F37254",
+          },
+        };
+
+        const razorpay = new window.Razorpay(options);
+        razorpay.open();
+      } else {
+        setTimeout(() => {
+      navigate("/payment-success", {
+        state: {
+          orderId,
+          trackingId,
+          transactionId,
+          userDetails,
+          items,
+          total: calculatedTotal,
+          paymentMethod: userDetails.paymentMethod,
+        },
+      });
+      }, 3000); 
     }
 
     try {
       const transactionId =
-        userDetails.paymentMethod === "upi" ? `TXN${Date.now()}` : null;
+        userDetails.paymentMethod === "upi" || "razorpay" ? `TXN${Date.now()}` : null;
 
       const response = await axios.post("http://localhost:5000/api/orders", {
         items,
@@ -198,148 +251,100 @@ const BuyNowPage = () => {
       });
 
       if (response.data && response.data.orderId) {
-        alert("Order placed successfully!");
-        navigate("/payment-success", {
-          state: {
-            orderId: response.data.orderId,
-            trackingId: response.data.trackingId,
-            transactionId: response.data.transactionId,
-            userDetails: userDetails,
-            items: items,
-            total: calculatedTotal,
-            paymentMethod: userDetails.paymentMethod,
-          },
-        });
-      }
+  toast.success("Order placed successfully!");
+
+  // Delay navigation to let the toast display
+  setTimeout(() => {
+    navigate("/payment-success", {
+      state: {
+        orderId: response.data.orderId,
+        trackingId: response.data.trackingId,
+        transactionId: response.data.transactionId,
+        userDetails: userDetails,
+        items: items,
+        total: calculatedTotal,
+        paymentMethod: userDetails.paymentMethod,
+      },
+    });
+  }, 3000); // 3-second delay to match the toast display duration
+}
+
     } catch (err) {
       console.error("Order Placement Error:", err.response?.data || err.message);
-      alert("Error placing order. Please try again.");
+      toast.error("Error placing order. Please try again.");
     }
   };
 
   return (
     <>
-      <Navbar />
-      <div
-        style={{
-          padding: "20px",
-          maxWidth: "800px",
-          margin: "0 auto",
-          fontFamily: "'Roboto', sans-serif",
-          color: "#333",
-        }}
-      >
-        <h1 style={{ textAlign: "center", marginBottom: "20px", color: "black" }}>
-          Checkout
-        </h1>
+      <Navbar onBack={() => navigate(-1)} />
+        <ToastContainer />
+      <div className="py-10 px-6 max-w-4xl mx-auto">
+        <h1 className="text-center text-3xl font-bold mb-8 text-gray-800">Checkout</h1>
 
-        {/* Order Summary Section */}
-        <div
-          style={{
-            backgroundColor: "#f9f9f9",
-            padding: "20px",
-            borderRadius: "8px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-            marginBottom: "20px",
-          }}
-        >
-          <h2>Order Summary 🛒</h2>
+        {/* Order Summary */}
+        <div className="bg-gradient-to-r from-pink-100 to-pink-500 p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold mb-4">Order Summary 🛒</h2>
           {items.map((item, index) => (
-            <p key={index}>
-              {item.product.name} (x{item.quantity}) — ₹
-              {item.product.price * item.quantity}
+            <p key={index} className="text-gray-700">
+              {item.product.name} (x{item.quantity}) — ₹{item.product.price * item.quantity}
             </p>
           ))}
-          <h3>Total: ₹{calculatedTotal}</h3>
+          <h3 className="text-lg font-semibold mt-4">Total: ₹{calculatedTotal}</h3>
         </div>
 
-        {/* Saved Addresses Section */}
-        <div
-          style={{
-            backgroundColor: "#fff",
-            padding: "20px",
-            borderRadius: "8px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-            marginBottom: "20px",
-          }}
-        >
-          <h2>Select Delivery Address 📦</h2>
-          
+        {/* Saved Addresses */}
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold mb-4">Select Delivery Address 📦</h2>
           {savedAddresses.length > 0 ? (
-            <div>
+            <div key={Date.now()} className="space-y-4">
               {savedAddresses.map((address) => (
                 <div
                   key={address.id}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: "4px",
-                    padding: "10px",
-                    margin: "10px 0",
-                    backgroundColor: selectedAddress === address.id ? "#f0f8ff" : "#fff",
-                    cursor: "pointer",
-                  }}
+                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                    selectedAddress === address.id
+                      ? "bg-gradient-to-r from-pink-100 to-pink-400 border-pink-500"
+                      : "border-gray-300"
+                  }`}
                   onClick={() => handleAddressSelect(address)}
                 >
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <input
-                      type="radio"
-                      name="address"
-                      checked={selectedAddress === address.id}
-                      onChange={() => handleAddressSelect(address)}
-                      style={{ marginRight: "10px" }}
-                    />
-                    <div>
-                      <p>
-                        <strong>{address.name}</strong>
-                      </p>
-                      <p>{address.address}</p>
-                      <p>
-                        {address.city} - {address.pincode}
-                      </p>
-                      <p>Phone: {address.phone}</p>
-                      <p>Email: {address.email}</p>
-                    </div>
+                  <input
+                    type="radio"
+                    name="address"
+                    checked={selectedAddress === address.id}
+                    onChange={() => handleAddressSelect(address)}
+                    className="mr-3"
+                  />
+                  <div>
+                    <p className="font-semibold">{address.name}</p>
+                    <p>{address.address}</p>
+                    <p>
+                      {address.city} - {address.pincode}
+                    </p>
+                    <p>Phone: {address.phone}</p>
+                    <p>Email: {address.email}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p>No saved addresses found.</p>
+            <p className="text-gray-500">No saved addresses found.</p>
           )}
-
           <button
             onClick={() => setShowNewAddressForm(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              padding: "10px 15px",
-              backgroundColor: "#0288D1",
-              color: "#fff",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              marginTop: "10px",
-            }}
+            className="mt-6 px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-700 text-white rounded-lg hover:shadow-lg transition"
           >
-            <FaPlus /> Add New Address
+            <FaPlus className="inline-block mr-2" /> Add New Address
           </button>
         </div>
 
-        {/* New Address Form (Conditional) */}
+        {/* New Address Form */}
         {showNewAddressForm && (
-          <div
-            style={{
-              backgroundColor: "#fff",
-              padding: "20px",
-              borderRadius: "8px",
-              boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-              marginBottom: "20px",
-            }}
-          >
-            <h2>New Shipping Address</h2>
-            {["name", "address", "city", "email", "pincode", "phone"].map(
-              (field) => (
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 className="text-xl font-semibold mb-4">📦New Shipping Address</h2>
+            {"name address city email pincode phone"
+              .split(" ")
+              .map((field) => (
                 <input
                   key={field}
                   type="text"
@@ -347,43 +352,19 @@ const BuyNowPage = () => {
                   placeholder={field[0].toUpperCase() + field.slice(1)}
                   value={userDetails[field]}
                   onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    margin: "10px 0",
-                    borderRadius: "4px",
-                    border: "1px solid #ddd",
-                  }}
+                  className="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-pink-300"
                 />
-              )
-            )}
-            <div style={{ display: "flex", gap: "10px" }}>
+              ))}
+            <div className="flex space-x-4">
               <button
                 onClick={handleSaveNewAddress}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px",
-                  padding: "10px 15px",
-                  backgroundColor: "#4CAF50",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
+                className="px-5 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
               >
-                <FaCheck /> Save Address
+                <FaCheck className="inline-block mr-2" /> Save Address
               </button>
               <button
                 onClick={() => setShowNewAddressForm(false)}
-                style={{
-                  padding: "10px 15px",
-                  backgroundColor: "#f44336",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
+                className="px-5 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
               >
                 Cancel
               </button>
@@ -391,102 +372,46 @@ const BuyNowPage = () => {
           </div>
         )}
 
-        {/* Payment Method Section */}
-        <div
-          style={{
-            backgroundColor: "#f9f9f9",
-            padding: "20px",
-            borderRadius: "8px",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-            marginBottom: "20px",
-          }}
-        >
-          <h2>
-            <FaCreditCard /> Payment Method
+        {/* Payment Method */}
+        <div className="bg-gradient-to-r from-pink-100 to-pink-500 p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-semibold mb-4">
+            <FaCreditCard className="inline-block mr-2" /> Payment Method
           </h2>
           <select
             name="paymentMethod"
             value={userDetails.paymentMethod}
             onChange={handleInputChange}
-            style={{
-              width: "100%",
-              padding: "10px",
-              margin: "10px 0",
-              borderRadius: "4px",
-              border: "1px solid #ddd",
-            }}
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-pink-400"
           >
-            <option value="creditCard">
-              <FaCreditCard />
-              Credit Card
-            </option>
-            <option value="upi">
-              <FaMobileAlt />
-              UPI
-            </option>
-            <option value="cashOnDelivery">
-              <FaMoneyBillWave />
-              Cash on Delivery
-            </option>
+            <option value="creditCard">Credit Card</option>
+            <option value="upi">UPI</option>
+            <option value="razorpay">Razorpay</option>
+            <option value="cashOnDelivery">Cash on Delivery</option>
           </select>
         </div>
 
-        {/* UPI Payment Section (Conditional) */}
+        {/* UPI Payment */}
         {userDetails.paymentMethod === "upi" && (
-          <div>
+          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
             <button
               onClick={handleGenerateUPI}
-              style={{
-                width: "100%",
-                padding: "15px",
-                marginBottom: "10px",
-                color: "#fff",
-                backgroundColor: "#0288D1",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                fontSize: "16px",
-              }}
+              className="w-full px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition mb-4"
             >
-              <FaRupeeSign />
-              Generate UPI Payment Link
+              <FaRupeeSign className="inline-block mr-2" /> Generate UPI Payment Link
             </button>
             {upiPayment.show && (
               <div>
-                <a
-                  href={upiPayment.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: "block",
-                    textAlign: "center",
-                    color: "#0288D1",
-                    textDecoration: "underline",
-                    margin: "10px 0",
-                  }}
-                >
-                  Click here to Pay
-                </a>
+                
                 <button
                   onClick={() =>
                     setUpiPayment((prev) => ({ ...prev, qrVisible: true }))
                   }
-                  style={{
-                    width: "100%",
-                    padding: "15px",
-                    color: "#fff",
-                    backgroundColor: "#0288D1",
-                    border: "none",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                  }}
+                  className="w-full px-5 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-lg hover:shadow-lg transition"
                 >
-                  <FaQrcode />
-                  Show QR Code
+                  <FaQrcode className="inline-block mr-2" /> Show QR Code
                 </button>
                 {upiPayment.qrVisible && (
-                  <div style={{ textAlign: "center", marginTop: "20px" }}>
+                  <div className="flex justify-center mt-4">
                     <QRCodeSVG value={upiPayment.qrData} size={150} />
                   </div>
                 )}
@@ -494,19 +419,10 @@ const BuyNowPage = () => {
             )}
           </div>
         )}
-        <br />
+
         <button
           onClick={handlePlaceOrder}
-          style={{
-            width: "100%",
-            padding: "15px",
-            color: "#fff",
-            backgroundColor: "#4CAF50",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontSize: "16px",
-          }}
+          className="w-full px-5 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
         >
           Place Order
         </button>
@@ -515,4 +431,4 @@ const BuyNowPage = () => {
   );
 };
 
-export default BuyNowPage;
+export default BuyNowPage;  
