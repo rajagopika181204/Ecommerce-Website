@@ -58,7 +58,7 @@ function Login() {
           <FaHome className="inline-block mr-2" /> Home
         </button>
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-pink-500">
+          <h1 className="text-4xl font-extrabold text-pink-700">
             <FaUserAlt className="inline-block mr-3" /> TechGadget Store
           </h1>
           <p className="text-lg text-gray-600 mt-3">
@@ -77,7 +77,7 @@ function Login() {
               Email
             </label>
             <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg focus-within:ring-4 focus-within:ring-pink-300">
-              <FaEnvelope className="text-pink-500 mx-4 text-xl" />
+              <FaEnvelope className="text-pink-700 mx-4 text-xl" />
               <input
                 id="email"
                 type="text"
@@ -98,7 +98,7 @@ function Login() {
               Password
             </label>
             <div className="flex items-center bg-gray-50 border border-gray-300 rounded-lg focus-within:ring-4 focus-within:ring-pink-300">
-              <FaLock className="text-pink-500 mx-4 text-xl" />
+              <FaLock className="text-pink-700 mx-4 text-xl" />
               <input
                 id="password"
                 type="password"
@@ -113,7 +113,7 @@ function Login() {
           </div>
           <button
             type="submit"
-            className="w-full py-4 text-xl bg-gradient-to-r from-pink-500 to-pink-600 text-white font-bold rounded-full hover:shadow-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-300"
+            className="w-full py-4 text-xl bg-gradient-to-r from-pink-600 to-pink-700 text-white font-bold rounded-full hover:shadow-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-300"
           >
             Login
           </button>
@@ -122,7 +122,7 @@ function Login() {
           Don't have an account?{" "}
           <Link
             to="/signup"
-            className="text-pink-500 font-bold hover:underline"
+            className="text-pink-700 font-bold hover:underline"
           >
             Signup
           </Link>
