@@ -53,7 +53,7 @@ const PaymentSuccessPage = () => {
     <div className="min-h-screen bg-pink-50 flex items-center justify-center">
       <div className="bg-white max-w-lg w-full rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
-          <FaCheckCircle className="text-pink-700 mx-auto text-6xl" />
+          <FaCheckCircle className="text-green-700 mx-auto text-6xl" />
           <h1 className="text-3xl font-extrabold text-pink-600 mt-4">
             Payment Successful!
           </h1>
