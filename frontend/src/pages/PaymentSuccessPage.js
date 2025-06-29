@@ -55,7 +55,7 @@ const PaymentSuccessPage = () => {
         <div className="text-center mb-8">
           <FaCheckCircle className="text-green-700 mx-auto text-6xl" />
           <h1 className="text-3xl font-extrabold text-pink-600 mt-4">
-            Payment Successful!
+            Order Confirmed!
           </h1>
           <p className="text-gray-700 mt-3">
             Thank you for your purchase. Your order is being processed.
