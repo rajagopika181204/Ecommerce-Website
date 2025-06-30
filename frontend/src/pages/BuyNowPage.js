@@ -190,6 +190,10 @@ const BuyNowPage = () => {
     const trackingId = `TRACK_${Date.now()}`;
     const transactionId = `TXN_${Date.now()}`;
     if (userDetails.paymentMethod === "razorpay") {
+      if (!window.Razorpay) {
+      toast.error("Payment failed. Check your connection and try again.");
+      return;
+    }
         const options = {
           key: "rzp_test_EH1UEwLILEPXCj", // Replace with your Razorpay Key ID
           amount: calculatedTotal * 100, // Amount in paise
