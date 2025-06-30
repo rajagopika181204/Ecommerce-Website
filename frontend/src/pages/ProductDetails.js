@@ -261,7 +261,7 @@ function ProductDetails() {
       )}
 
       {/* Footer */}
-      <footer className="bg-pink-700 text-white text-center py-4 mt-10">
+      <footer className="bg-pink-700 text-white text-center py-6 mt-auto">
         <p>© 2025 Tech Gadgets Store. All rights reserved.</p>
       </footer>
     </div>

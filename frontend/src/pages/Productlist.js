@@ -71,21 +71,22 @@ function ProductList() {
             {darkMode ? <FaSun /> : <FaMoon />}
           </button>
           <nav className="flex space-x-6 text-lg font-medium">
-            <Link to="/about" className="hover:text-pink-200">About</Link>
-            <Link to="/products" className="hover:text-pink-200">Products</Link>
-            <Link to="/wishlist" className="hover:text-pink-200">
-              Wishlist ❤️
-            </Link>
-            <Link to="/cart" className="hover:text-pink-200 flex items-center">
-              Cart <FaShoppingCart className="ml-1" />
-            </Link>
             {user ? (
               <Link to="/profile" className="hover:text-pink-200 flex items-center">
-                My Profile <FaUser className="ml-1" />
+              <FaUser className="mr-1"/>  My Profile 
               </Link>
             ) : (
               <Link to="/login" className="hover:text-pink-200">Login</Link>
             )}
+            <Link to="/cart" className="hover:text-pink-200 flex items-center">
+              Cart<FaShoppingCart className="ml-1" /></Link>
+              <Link to="/wishlist" className="hover:text-pink-200">
+              Wishlist ❤️
+            </Link>
+            <Link to="/products" className="hover:text-pink-200">Products</Link>
+              <Link to="/about" className="hover:text-pink-200">About</Link>
+            
+            
           </nav>
         </div>
       </div>
