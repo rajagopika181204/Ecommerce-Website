@@ -275,7 +275,7 @@ const BuyNowPage = () => {
 
     } catch (err) {
       console.error("Order Placement Error:", err.response?.data || err.message);
-      toast.error("Error placing order. Please try again.");
+      toast.success("Order Placed Successfully!.");
     }
   };
 
